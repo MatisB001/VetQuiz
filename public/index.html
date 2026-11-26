@@ -71,6 +71,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1;text-wrap:bala
 .hero{display:flex;flex-direction:column;gap:10px}
 .hero h1{font-size:clamp(30px,8vw,40px)}
 .hero .lede{margin:0;max-width:44ch}
+.hero .lede-ex{margin-top:.6em;font-size:.92em;opacity:.85}
 .themes{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:5px}
 .themes li{font-size:11px;border:2px solid var(--ink);padding:0 6px;background:var(--paper-2)}
 .next{margin:0;font-size:12.5px;color:var(--muted-ink)}
@@ -393,7 +394,8 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
     <div class="panel hero">
       <p class="eyebrow">Quiz du jour · n° <span class="dayno">1</span></p>
       <h1 id="todayDate">Jeudi 26 novembre</h1>
-      <p class="lede">7 questions ouvertes sur le chien et le chat, 30 secondes chacune. Plus votre réponse est pointue, plus elle rapporte : de 1 point (niveau Étudiant) à 5 points (niveau Professeur).</p>
+      <p class="lede"><b>Le but : donner la réponse la plus pointue, pas la plus évidente.</b> 7 questions ouvertes sur le chien et le chat, 30 secondes chacune. Une réponse que tout le monde connaît rapporte 1 point (niveau Étudiant) ; une réponse que seul un spécialiste donnerait en rapporte 5 (niveau Professeur).</p>
+      <p class="lede lede-ex">Exemple fictif : « Citez une race de chien. » Labrador : 1 point. Xoloitzcuintle : 5 points.<br><b>Attention, votre première réponse acceptée est définitive :</b> visez haut dès le premier essai.</p>
       <ul class="themes" id="themes" aria-label="Thèmes du jour"></ul>
       <div id="heroPlay"><button class="btn big" id="play">Jouer</button></div>
       <div class="done-box" id="heroDone" hidden>
