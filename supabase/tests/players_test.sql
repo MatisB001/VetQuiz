@@ -52,12 +52,15 @@ update public.profiles set school_id = 'envt' where id = auth.uid();
 update public.profiles set school_id = 'vas' where id = auth.uid();
 select pg_temp.check(true, 'pseudo et école modifiables');
 
--- 4. Table des réponses anonymes : ni lecture ni écriture depuis le navigateur.
-select pg_temp.check((select count(*) from public.answer_log) = 0, 'answer_log : rien de lisible');
+-- 4. Statistiques des réponses : ni lecture ni écriture depuis le navigateur.
 do $$ begin
-  insert into public.answer_log (question_id, day, answer_norm, tier) values ('q1', '2026-01-01', 'x', 5);
-  raise exception 'ÉCHEC : écriture dans answer_log autorisée';
-exception when insufficient_privilege then raise notice 'ok : answer_log fermé'; end $$;
+  perform count(*) from public.answer_stats;
+  raise exception 'ÉCHEC : lecture de answer_stats autorisée';
+exception when insufficient_privilege then raise notice 'ok : answer_stats illisible'; end $$;
+do $$ begin
+  insert into public.answer_stats (question_id, accepted, answer, tier) values ('q1', true, 'x', 5);
+  raise exception 'ÉCHEC : écriture dans answer_stats autorisée';
+exception when insufficient_privilege then raise notice 'ok : answer_stats fermé'; end $$;
 
 -- 5. Amis par code : demande, acceptation, visibilité limitée.
 reset role;
@@ -135,4 +138,4 @@ select pg_temp.check((select count(*) from public.friendships) = 0, 'suppression
 update public.profiles set last_seen_at = now() - interval '2 years 1 day' where pseudo = 'Joueur3';
 select pg_temp.check(public.purge_inactive_accounts() = 1, 'purge : 1 compte inactif supprimé');
 \o
-\echo 'Tous les tests sont passés.'
+\echo '  Tests joueurs passés.'

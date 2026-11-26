@@ -5,3 +5,5 @@ node_modules/
 .DS_Store
 supabase/.temp/
 supabase/.branches/
+# Réponses des questions : jamais dans le dépôt public
+supabase/questions*.sql
