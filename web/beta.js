@@ -8,14 +8,12 @@
   const addC = (q, s) => { try { const L = getC(); if (!L.some((x) => x.q === q && x.s === s)) { L.push({ q, s, d: todayKey }); localStorage.setItem(CKEY, JSON.stringify(L.slice(-300))); } } catch (e) {} };
   const ids = new Set(QBANK.map((q) => q.id));
 
-  /* bandeau d'accueil */
-  const ex = document.querySelector(".lede-ex");
-  if (ex) {
-    const p = document.createElement("p");
-    p.className = "lede lede-ex beta-note";
-    p.innerHTML = "<b>Version bêta.</b> 7 questions d'essai, les mêmes chaque jour, pour tester le jeu. Les réponses n'ont pas encore été vérifiées une à une et les niveaux sont estimés. Une réponse refusée à tort ? Signalez-la avec le bouton « Ma réponse était bonne », puis envoyez vos retours depuis l'écran de score.";
-    ex.after(p);
-  }
+  /* accueil : une ligne discrète en bas à la place de la note de la maquette ; pas d'onglet Joueurs (démonstration
+     sans serveur : ni compte ni amis dans la bêta) */
+  const note = document.querySelector("#v-home > p.note");
+  if (note) note.innerHTML = "<b>Bêta</b> : questions d'essai, réponses pas encore relues. Refusé à tort ? Signalez-le après la question.";
+  const tab = document.querySelector('.tabs button[data-v="players"]');
+  if (tab) tab.hidden = true;
 
   /* après chaque question : contestation des essais refusés, source de la question */
   const submit0 = submit;
