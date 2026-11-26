@@ -39,6 +39,8 @@ do $$ begin perform public.quiz_answer(auth.uid(), 0, 5, 'x'); raise exception '
 exception when insufficient_privilege then raise notice 'ok : quiz_answer réservé au serveur'; end $$;
 do $$ begin perform public.quiz_accepted('T1'); raise exception 'ÉCHEC : quiz_accepted exécutable';
 exception when insufficient_privilege then raise notice 'ok : quiz_accepted réservé au serveur'; end $$;
+do $$ begin perform count(*) from public.answer_stats_review; raise exception 'ÉCHEC : statistiques lisibles';
+exception when insufficient_privilege then raise notice 'ok : statistiques illisibles'; end $$;
 do $$ begin update public.quiz_runs set answers = '[]' where user_id = auth.uid(); raise exception 'ÉCHEC : partie modifiable';
 exception when insufficient_privilege then raise notice 'ok : partie non modifiable'; end $$;
 do $$ begin insert into public.cards (id, tier, species) values ('x', 'l', 'dog'); raise exception 'ÉCHEC : carte créée';

@@ -36,7 +36,7 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
 - **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
 - Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée provisoire, choix de Seb attendu ; à planifier).
-- Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD).
+- Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD). Un essai refusé contenant « @ » ou au moins 8 chiffres n'est pas compté ; pour l'analyse, la vue `answer_stats_review` ne montre un essai refusé qu'à partir de 5 occurrences.
 - Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
 
 ## Mise en service (dans l'ordre)

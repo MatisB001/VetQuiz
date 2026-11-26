@@ -67,6 +67,10 @@ r = await play(A, { action: "answer", qi: 0, text: "chien" });
 ok(r.kind === "vague", "réponse trop vague");
 r = await play(A, { action: "answer", qi: 0, text: "Bravo Charlie" });
 ok(r.kind === "multi", "deux réponses d'un coup refusées");
+logs = logCount();
+await play(A, { action: "answer", qi: 0, text: "jean.dupont@exemple.fr" });
+await play(A, { action: "answer", qi: 0, text: "06 12 34 56 78" });
+ok(logCount() === logs, "essai refusé : e-mail ou numéro jamais compté");
 r = await play(A, { action: "answer", qi: 0, text: "écho" });
 ok(r.kind === "ok" && r.tier === 5 && r.label === "Echo (écho)" && r.done === false, "réponse acceptée : niveau 5");
 ok(r.accepted === undefined && r.alts === undefined, "réponse acceptée : liste cachée jusqu'au lendemain");
@@ -76,6 +80,10 @@ await rejects(play(A, { action: "answer", qi: 0, text: "Alpha" }), 409, "questio
 
 // 3 bis. Un essai refusé est compté sous sa forme normalisée, sans date ni joueur.
 ok(sql("select n from public.answer_stats where not accepted and answer = 'zzzz'") === "1", "essai refusé : compté une fois");
+
+ok(sql("select count(*) from public.answer_stats_review where not accepted") === "0", "analyse : essai refusé moins de 5 fois caché");
+sql("update public.answer_stats set n = 5 where not accepted and answer = 'zzzz'");
+ok(sql("select count(*) from public.answer_stats_review where not accepted") === "1", "analyse : essai refusé 5 fois visible");
 
 // 4. Passer une question (texte vide) : 0 point.
 await play(A, { action: "start", qi: 1 });

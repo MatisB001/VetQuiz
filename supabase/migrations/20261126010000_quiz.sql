@@ -241,6 +241,11 @@ create or replace function public.quiz_log(question_id text, answer text, tier i
   on conflict (question_id, accepted, answer) do update set n = s.n + 1, tier = excluded.tier;
 $$;
 
+-- Pour l'analyse : toutes les réponses acceptées, mais un essai refusé seulement s'il a été tapé au moins 5 fois
+-- (texte libre : un nom saisi par un seul joueur n'apparaît jamais). Serveur uniquement.
+create view public.answer_stats_review with (security_invoker = true) as
+  select * from public.answer_stats where accepted or n >= 5;
+
 -- Sessions anonymes : Supabase ne les supprime pas lui-même. On efface celles qui n'ont joué aucune partie
 -- depuis 90 jours, avec leurs scores et leurs cartes (durée provisoire, choix de Seb attendu). À planifier.
 create or replace function public.purge_anonymous_sessions() returns int
@@ -257,11 +262,12 @@ end $$;
 -- Droits sur les tables, explicites, sans dépendre du réglage « accès API automatique » de Supabase :
 -- lecture seule pour le navigateur, aucune écriture des scores, cartes, parties ni questions.
 revoke all on public.questions, public.quiz_runs, public.cards, public.cards_owned, public.daily_results,
-  public.answer_stats from anon, authenticated;
+  public.answer_stats, public.answer_stats_review from anon, authenticated;
 grant select on public.cards to anon, authenticated;
 grant select on public.quiz_runs, public.cards_owned, public.daily_results to authenticated;
 grant all on public.questions, public.quiz_runs, public.cards, public.cards_owned, public.daily_results,
   public.answer_stats to service_role;
+grant select on public.answer_stats_review to service_role;
 
 -- Export RGPD : on ajoute les parties (niveau et réponse retenue pour chaque question).
 create or replace function public.export_my_data() returns jsonb

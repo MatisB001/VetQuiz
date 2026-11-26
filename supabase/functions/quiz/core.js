@@ -16,6 +16,9 @@ const dayOf = (v) => {
   return v;
 };
 
+// Texte libre : « @ » ou au moins 8 chiffres (téléphone, numéro d'identification) → on ne le garde pas.
+export const personal = (s) => s.includes("@") || (s.match(/\d/g) ?? []).length >= 8;
+
 // Actions : state (état du jour), start (démarre une question), answer (un essai), review (réponses d'un jour passé).
 export async function handle(rpc, uid, body) {
   switch (body?.action) {
@@ -44,7 +47,8 @@ async function answer(rpc, uid, qi, input, final) {
     // Les autres réponses possibles ne sont montrées que si la liste complète l'est aussi.
     return { kind: "ok", ...res, ...(res.accepted ? { alts: r.alts } : {}) };
   }
-  if (r.kind === "miss") await log(norm(text), 0, false);
+  // Un essai refusé qui ressemble à une donnée personnelle (e-mail, numéro) n'est pas compté.
+  if (r.kind === "miss" && !personal(text)) await log(norm(text), 0, false);
   if (cur.expired || cur.too_many || final || r.kind === "empty") {
     const res = await rpc("quiz_answer", { uid, qi, tier: 0, label: null });
     const kind = cur.expired ? "timeout" : cur.too_many ? "too_many" : final ? "timeout" : "pass";
