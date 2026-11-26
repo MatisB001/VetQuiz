@@ -116,6 +116,15 @@ do $$ begin
   raise exception 'ÉCHEC : profil créé par un compte anonyme';
 exception when insufficient_privilege then raise notice 'ok : compte anonyme sans profil'; end $$;
 
+-- 8 bis. Inscription depuis le navigateur : un joueur crée lui-même son profil (code ami généré).
+reset role;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000098', 'nouveau@exemple.fr');
+set role authenticated;
+select pg_temp.as_user('00000000-0000-0000-0000-000000000098');
+insert into public.profiles (id, pseudo, age15) values (auth.uid(), 'Nouveau', true);
+select pg_temp.check((select friend_code from public.profiles) ~ '^VQ-[A-Z0-9]{4}$', 'inscription : profil créé avec un code ami');
+select pg_temp.check((public.create_league('Ligue du nouveau')).invite_code ~ '^LG-', 'inscription : création de ligue');
+
 -- 9. Le public non connecté ne voit que la liste des écoles.
 reset role; set role anon;
 select pg_temp.check((select count(*) from public.schools) = 73, 'anon : 73 écoles lisibles');

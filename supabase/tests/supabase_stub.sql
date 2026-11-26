@@ -17,3 +17,5 @@ grant usage on schema extensions to anon, authenticated, service_role;
 grant usage on schema public to anon, authenticated, service_role;
 alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant usage, select on sequences to anon, authenticated, service_role;
+-- Comme Supabase : les nouvelles fonctions du schéma public sont exécutables par ces rôles, en plus de PUBLIC.
+alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
