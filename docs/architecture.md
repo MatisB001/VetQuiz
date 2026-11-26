@@ -35,19 +35,19 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - Chaque essai est corrigé par le même moteur que la maquette (`matcher.js`, copié par `scripts/sync-matcher.mjs`). Le premier essai accepté termine la question ; au plus 20 essais par question.
 - À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
 - **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
-- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée provisoire, choix de Seb attendu ; à planifier).
+- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée choisie par Seb le 26/11/2026 ; à planifier).
 - Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD). Un essai refusé contenant « @ » ou au moins 8 chiffres n'est pas compté ; pour l'analyse, la vue `answer_stats_review` ne montre un essai refusé qu'à partir de 5 occurrences.
 - Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
 
 ## Mise en service (dans l'ordre)
 
 1. SQL Editor : `supabase/migrations/20261126000000_players.sql`, puis `supabase/seed.sql`.
-2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`.
+2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
 5. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
 
-Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer).
+Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 29/29 ok »).
 
 ## Droits RGPD
 
