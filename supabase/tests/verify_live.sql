@@ -78,6 +78,11 @@ begin
         total := total + 1;
         if jsonb_array_length(coalesce(j -> 'themes', '[]')) <> 7 then r := r || 'quiz_state : thèmes du jour absents (migration 20261126030000_themes.sql)'::text; end if;
   exception when others then r := r || ('quiz_state (serveur) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if (select question_ids from public.quiz_days where day = public.paris_today())
+            is distinct from (select question_ids from public.quiz_runs where user_id = u1 and day = public.paris_today())
+        then r := r || 'questions du jour non figées'::text; end if;
+  exception when others then r := r || ('questions du jour figées (migration 20261126040000_jour_fige.sql) : ' || sqlerrm); end;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
     case when cardinality(r) = 0 then total || '/' || total || ' ok'
