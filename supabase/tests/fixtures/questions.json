@@ -1,0 +1,258 @@
+[
+ {
+  "id": "T1",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 1.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T2",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 2.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T3",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 3.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T4",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 4.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T5",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 5.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T6",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 6.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T7",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 7.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ },
+ {
+  "id": "T8",
+  "dom": "Test",
+  "q": "Citez un mot de l'alphabet radio, liste n° 8.",
+  "ans": [
+   [
+    "Alpha",
+    1,
+    "Étudiant"
+   ],
+   [
+    "Bravo",
+    2,
+    "Carte verte"
+   ],
+   [
+    "Charlie",
+    3,
+    "Généraliste"
+   ],
+   [
+    "Delta",
+    4,
+    "Spécialiste"
+   ],
+   [
+    "Echo (écho)",
+    5,
+    "Professeur"
+   ]
+  ]
+ }
+]

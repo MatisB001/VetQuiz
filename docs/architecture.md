@@ -20,8 +20,33 @@ Document de référence complet, avec comparatif et sources : https://claude.ai/
 | `friendships`, `leagues`, `league_members` | relations | les personnes concernées |
 | `reports` | signalements | modération (clé serveur) |
 | `answer_log` | réponses normalisées, sans aucun identifiant | serveur uniquement |
+| `questions` | questions et réponses acceptées | serveur uniquement |
+| `cards` | série de cartes (identifiant, rareté, espèce) | tout le monde |
+| `quiz_runs` | partie du jour : questions tirées, niveau et réponse retenue par question, carte gagnée | le joueur |
 
-Les scores et les cartes ne sont **jamais écrits par le navigateur** : sinon n'importe qui pourrait s'attribuer 35 points. Ils seront écrits par une fonction serveur qui corrige les réponses (étape suivante).
+Les scores et les cartes ne sont **jamais écrits par le navigateur** : sinon n'importe qui pourrait s'attribuer 35 points. Ils sont écrits par la fonction serveur qui corrige les réponses.
+
+## Partie du jour corrigée par le serveur
+
+Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (validées le 26/11/2026).
+
+- Le navigateur ne reçoit le texte d'une question qu'au moment où il la démarre, et jamais ses réponses acceptées.
+- Chronomètre tenu par le serveur : 30 secondes, plus 3 secondes de marge pour le réseau. Recharger la page ne le remet pas à zéro ; une question abandonnée vaut 0.
+- Chaque essai est corrigé par le même moteur que la maquette (`matcher.js`, copié par `scripts/sync-matcher.mjs`). Le premier essai accepté termine la question ; au plus 20 essais par question.
+- À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
+- **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
+- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 30 jours supprimées par `purge_anonymous_sessions()` (30 jours : exemple de la documentation Supabase, à valider avec le fil RGPD ; à planifier).
+- Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
+
+## Mise en service (dans l'ordre)
+
+1. SQL Editor : `supabase/migrations/20261126000000_players.sql`, puis `supabase/seed.sql`.
+2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`.
+3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
+4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
+5. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
+
+Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer).
 
 ## Droits RGPD
 
@@ -31,7 +56,6 @@ Les scores et les cartes ne sont **jamais écrits par le navigateur** : sinon n'
 
 ## Reste à faire
 
-1. Fonction serveur de correction (questions du jour sans réponses côté navigateur, chronomètre côté serveur, écriture des scores, des cartes et de `answer_log`).
-2. Brancher le site sur Supabase (connexion, profil, amis, ligues, écoles).
-3. Choisir le prestataire d'e-mails (UE, avec DPA) et le configurer dans Supabase.
-4. Vérifier le DPA de Supabase et la base du transfert vers les États-Unis.
+1. Brancher le site sur Supabase (connexion, invités, partie du jour via la fonction `quiz`, profil, amis, ligues, écoles, liste des réponses de la veille).
+2. Planifier `purge_inactive_accounts()` et `purge_anonymous_sessions()`.
+3. Configurer le prestataire d'e-mails dans Supabase (Scaleway recommandé, choix de Seb attendu).
