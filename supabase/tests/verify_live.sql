@@ -9,7 +9,8 @@ begin
 
   -- Fonctions de partie réservées au serveur (droits déclarés).
   foreach t in array array['public.quiz_state(uuid)', 'public.quiz_answer(uuid,integer,integer,text)', 'public.quiz_start(uuid,integer)',
-                           'public.quiz_attempt(uuid)', 'public.purge_anonymous_sessions()', 'public.purge_inactive_accounts()'] loop
+                           'public.quiz_attempt(uuid)', 'public.purge_anonymous_sessions()', 'public.purge_inactive_accounts()',
+                           'public.quiz_contest(uuid,integer,text)'] loop
     total := total + 2;
     if has_function_privilege('anon', t, 'execute') then r := r || ('anon peut exécuter ' || t); end if;
     if has_function_privilege('authenticated', t, 'execute') then r := r || ('authenticated peut exécuter ' || t); end if;
@@ -41,6 +42,10 @@ begin
   total := total + 1;
   begin perform count(*) from public.answer_stats; r := r || 'statistiques lisibles'::text;
   exception when insufficient_privilege then null; end;
+  total := total + 1;
+  begin perform count(*) from public.answer_review; r := r || 'liste de revue lisible par un joueur'::text;
+  exception when insufficient_privilege then null;
+            when undefined_table then r := r || 'liste de revue absente (migration 20261127010000_contestations.sql)'::text; end;
   total := total + 1;
   begin if public.send_friend_request('VQ-ZZZZ') <> 'introuvable' then r := r || 'demande d''ami : réponse inattendue'::text; end if;
   exception when others then r := r || ('amis : ' || sqlerrm); end;
@@ -83,6 +88,10 @@ begin
             is distinct from (select question_ids from public.quiz_runs where user_id = u1 and day = public.paris_today())
         then r := r || 'questions du jour non figées'::text; end if;
   exception when others then r := r || ('questions du jour figées (migration 20261126040000_jour_fige.sql) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if public.quiz_contest(u1, 0, 'verification') is not false or (select count(*) from public.answer_review) < 0
+        then r := r || 'signalement : réponse inattendue'::text; end if;
+  exception when others then r := r || ('signalements (migration 20261127010000_contestations.sql) : ' || sqlerrm); end;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
     case when cardinality(r) = 0 then total || '/' || total || ' ok'

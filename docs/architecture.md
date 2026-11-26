@@ -36,10 +36,17 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
 - **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
 - Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée choisie par Seb le 26/11/2026 ; à planifier).
-- Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD). Un essai refusé contenant « @ » ou au moins 8 chiffres n'est pas compté ; pour l'analyse, la vue `answer_stats_review` ne montre un essai refusé qu'à partir de 5 occurrences.
+- Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD). Un essai refusé contenant « @ » ou au moins 8 chiffres n'est pas compté ; pour l'analyse, la vue `answer_stats_review` ne montre un essai refusé qu'à partir de 5 occurrences, ou s'il a été signalé.
 - Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
 - **Mêmes 7 questions pour tous chaque jour** (choix de Seb) : la série est enregistrée au premier appel du jour (`quiz_days`) et ne change plus, même si l'on ajoute des questions dans la journée.
 - À régler : avec 25 questions, une question revient tous les 3 à 4 jours alors que ses réponses sont montrées le lendemain. Il faut une base plus grande ou un délai minimal avant le retour d'une question.
+
+## Reconnaissance des réponses (27/11/2026)
+
+- **Lexique commun** `data/lexique.json` : groupes de termes strictement équivalents (abréviations, noms anglais, éponymes : IRC = MRC = CKD). `scripts/lexique.mjs` ajoute aux synonymes de chaque réponse les variantes obtenues en remplaçant un terme par ses équivalents ; `gen-questions-sql.mjs` l'applique, le moteur de correction ne change pas. Règles : jamais un terme plus large ou plus étroit, jamais un mot courant ni une abréviation à deux sens (PAM, MCT, OCD retirés pour cette raison). Rédigé par Claude, à relire par un vétérinaire.
+- **« Ma réponse était bonne »** : après une question, un bouton par essai refusé. L'action `contest` de la fonction Edge appelle `quiz_contest()` : seulement pour une question terminée de la partie du jour, seulement un texte déjà compté comme refusé (on ne peut pas créer de ligne), au plus 10 par joueur et par jour (`quiz_contest_max()`, provisoire). Le signalement est un compteur `answer_stats.contested`, sans joueur ni date ; la partie ne garde que leur nombre (`quiz_runs.contests`).
+- **Liste de revue** : vue `answer_review` (Table Editor ou SQL Editor de Supabase), essais refusés signalés au moins une fois ou tapés au moins 5 fois, les plus signalés d'abord, avec le texte de la question. Pour accepter un essai : l'ajouter à `synonyms.json` (cette question) ou au lexique (toutes les questions), relancer `gen-questions-sql.mjs` et coller le SQL produit.
+- Bêta dans Claude : `node scripts/build-beta.mjs <maquette/src> <cartes/build> <questions.json> <synonyms.json> <sortie.html>` assemble le même gabarit, corrigé dans la page, avec 7 questions d'essai et `web/beta.js` ; une page Claude ne peut rien enregistrer pour un visiteur extérieur, les retours restent dans le navigateur et se copient depuis l'écran de score.
 
 ## Mise en service (dans l'ordre)
 
@@ -47,7 +54,7 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
-5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée) ; tous deux rejouables.
+5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
 6. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
 7. Cloudflare Pages : projet relié au dépôt, sans commande de build, dossier de sortie `public`.
 
@@ -62,7 +69,7 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - Relancer le build quand la maquette ou les cartes changent, puis pousser `public/`.
 - Test dans Chromium contre un faux Supabase (vraie base locale, vraie fonction de correction) : `web/tests/e2e.test.mjs`, lancé par `scripts/test-db.sh` si les fichiers de la maquette sont présents.
 
-Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 31/31 ok »).
+Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 35/35 ok »).
 
 ## Droits RGPD
 

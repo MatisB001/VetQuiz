@@ -1242,7 +1242,31 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
       <button class="btn" id="next">${qi < 6 ? "Question suivante" : "Voir mon score"}</button>`;
     fb.hidden = false; pips(); paintPbar($("pbarG"), score(), prev);
     $("next").onclick = nextQ; $("next").focus({ preventScroll: true });
+    contestBox(qi, [...new Set(tries.filter((t) => t.k === "miss").map((t) => t.s))]);
   };
+
+  /* « Ma réponse était bonne » : le joueur signale un essai refusé ; le serveur ne garde qu'un compteur par texte */
+  function contestBox(cq, refused) {
+    if (!refused.length) return;
+    const box = document.createElement("div");
+    box.className = "contest";
+    box.innerHTML = `<p><b>Une réponse refusée était bonne ?</b> Signalez-la : elle sera relue avant d'être ajoutée aux réponses acceptées.</p>` +
+      refused.map((s, i) => `<button class="btn ghost" type="button" data-i="${i}">« ${esc(s)} » : ma réponse était bonne</button>`).join("");
+    box.querySelectorAll("button").forEach((b) => {
+      const s = refused[+b.dataset.i];
+      b.onclick = async () => {
+        b.disabled = true;
+        let res;
+        try { res = await api({ action: "contest", qi: cq, text: s }); }
+        catch (e) { b.disabled = false; return fail(e); }
+        b.textContent = res && res.ok ? `« ${s} » : signalée, merci` : `« ${s} » : signalement non enregistré (déjà fait ou limite atteinte)`;
+      };
+    });
+    $("next").before(box);
+  }
+  const css = document.createElement("style");
+  css.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}";
+  document.head.appendChild(css);
 
   nextQ = function () {
     if (qi < 6 && !S.done) { qi++; tries = []; showQ(); }

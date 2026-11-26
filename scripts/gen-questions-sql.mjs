@@ -1,14 +1,17 @@
 // Produit le SQL qui charge les questions et leurs réponses acceptées dans Supabase.
-// Usage : node scripts/gen-questions-sql.mjs <questions.json> <synonyms.json> <sortie.sql>
+// Usage : node scripts/gen-questions-sql.mjs <questions.json> <synonyms.json> <sortie.sql> [lexique.json]
+// Le lexique commun (data/lexique.json par défaut) ajoute aux synonymes les abréviations, noms anglais et éponymes.
 // Ce fichier contient toutes les réponses : ne jamais le committer dans le dépôt public.
 // L'ordre de questions.json donne l'ordre de rotation, comme dans la maquette. Une question absente
 // du fichier garde une position négative : elle sort de la rotation sans casser les parties passées.
 import { readFileSync, writeFileSync } from "node:fs";
+import { chargeLexique, synonymesAvecLexique, LEXIQUE_DEFAUT } from "./lexique.mjs";
 
-const [qPath, synPath, out] = process.argv.slice(2);
+const [qPath, synPath, out, lexPath] = process.argv.slice(2);
 if (!qPath || !synPath || !out) { console.error("usage : gen-questions-sql.mjs <questions.json> <synonyms.json> <sortie.sql>"); process.exit(1); }
 const Q = JSON.parse(readFileSync(qPath, "utf8"));
 const SYN = JSON.parse(readFileSync(synPath, "utf8"));
+const LEX = chargeLexique(lexPath || LEXIQUE_DEFAUT);
 const lit = (s) => "'" + String(s).replace(/'/g, "''") + "'";
 const ids = new Set();
 const rows = Q.map((q, pos) => {
@@ -17,7 +20,7 @@ const rows = Q.map((q, pos) => {
   if (!q.q || !q.dom || !Array.isArray(q.ans) || !q.ans.length) throw new Error("question incomplète : " + q.id);
   const answers = q.ans.map((a, i) => {
     if (typeof a[0] !== "string" || !(a[1] >= 1 && a[1] <= 5)) throw new Error(`réponse invalide : ${q.id} n° ${i}`);
-    return [a[0], a[1], a[2] ?? "", SYN[q.id]?.[String(i)] ?? []];
+    return [a[0], a[1], a[2] ?? "", synonymesAvecLexique(a[0], SYN[q.id]?.[String(i)] ?? [], LEX)];
   });
   return `  (${lit(q.id)}, ${pos}, ${lit(q.dom)}, ${lit(q.q)}, ${lit(JSON.stringify(answers))}::jsonb)`;
 });

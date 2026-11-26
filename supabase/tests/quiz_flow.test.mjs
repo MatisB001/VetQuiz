@@ -85,6 +85,26 @@ ok(sql("select count(*) from public.answer_stats_review where not accepted") ===
 sql("update public.answer_stats set n = 5 where not accepted and answer = 'zzzz'");
 ok(sql("select count(*) from public.answer_stats_review where not accepted") === "1", "analyse : essai refusé 5 fois visible");
 
+// 3 ter. « Ma réponse était bonne » : signalement d'un essai refusé, compteur sans joueur ni date.
+const q0 = sql(`select question_ids[1] from public.quiz_runs where user_id = '${A}' and day = public.paris_today()`);
+r = await play(A, { action: "contest", qi: 0, text: "ZZZZ" });
+ok(r.ok === true && sql("select contested from public.answer_stats where not accepted and answer = 'zzzz'") === "1", "signalement : compté sous la forme normalisée");
+ok((await play(A, { action: "contest", qi: 0, text: "jamais tapé" })).ok === false, "signalement : texte jamais refusé ignoré");
+ok((await play(A, { action: "contest", qi: 1, text: "zzzz" })).ok === false, "signalement : question pas encore terminée refusée");
+ok((await play(A, { action: "contest", qi: 0, text: "jean.dupont@exemple.fr" })).ok === false, "signalement : e-mail ignoré");
+await rejects(play(A, { action: "contest", qi: 8, text: "zzzz" }), 400, "signalement : numéro invalide refusé");
+ok((await play(B, { action: "contest", qi: 0, text: "zzzz" })).ok === false, "signalement : sans partie du jour, rien");
+sql(`insert into public.answer_stats (question_id, accepted, answer, tier, n) values (${lit(q0)}, false, 'yyyy', 0, 1)`);
+ok(sql("select count(*) from public.answer_review where reponse_refusee = 'yyyy'") === "0", "revue : essai tapé une fois et non signalé caché");
+await play(A, { action: "contest", qi: 0, text: "yyyy" });
+ok(sql("select signalements || ':' || fois_tapee from public.answer_review where reponse_refusee = 'yyyy'") === "1:1", "revue : essai signalé visible, avec la question");
+ok(sql("select string_agg(reponse_refusee, ',') from public.answer_review") === "zzzz,yyyy", "revue : les plus signalés d'abord, puis les plus tapés");
+ok(sql("select count(*) from public.answer_stats_review where answer = 'yyyy'") === "1", "analyse : essai signalé visible");
+sql(`update public.quiz_runs set contests = public.quiz_contest_max() where user_id = '${A}' and day = public.paris_today()`);
+ok((await play(A, { action: "contest", qi: 0, text: "zzzz" })).ok === false, "signalement : au plus 10 par joueur et par jour");
+ok(sql("select count(*) from information_schema.columns where table_name = 'quiz_runs' and column_name like 'contest%' and data_type <> 'smallint'") === "0", "partie : seulement un nombre de signalements, aucun texte");
+ok(sql("select has_table_privilege('authenticated', 'public.answer_review', 'select') or has_function_privilege('authenticated', 'public.quiz_contest(uuid, int, text)', 'execute')") === "f", "revue et signalement : réservés au serveur");
+
 // 4. Passer une question (texte vide) : 0 point.
 await play(A, { action: "start", qi: 1 });
 r = await play(A, { action: "answer", qi: 1, text: "   " });

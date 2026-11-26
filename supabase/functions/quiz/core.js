@@ -19,13 +19,15 @@ const dayOf = (v) => {
 // Texte libre : « @ » ou au moins 8 chiffres (téléphone, numéro d'identification) → on ne le garde pas.
 export const personal = (s) => s.includes("@") || (s.match(/\d/g) ?? []).length >= 8;
 
-// Actions : state (état du jour), start (démarre une question), answer (un essai), review (réponses d'un jour passé).
+// Actions : state (état du jour), start (démarre une question), answer (un essai), review (réponses d'un jour passé),
+// contest (« Ma réponse était bonne » : signale un essai refusé d'une question terminée).
 export async function handle(rpc, uid, body) {
   switch (body?.action) {
     case "state": return rpc("quiz_state", { uid });
     case "start": return rpc("quiz_start", { uid, qi: qiOf(body.qi) });
     case "answer": return answer(rpc, uid, qiOf(body.qi), body.text, body.final === true);
     case "review": return rpc("quiz_review", { uid, d: dayOf(body.day) });
+    case "contest": return contest(rpc, uid, qiOf(body.qi), body.text);
     default: throw new QuizError(400, "action inconnue");
   }
 }
@@ -55,4 +57,11 @@ async function answer(rpc, uid, qi, input, final) {
     return { kind, ...res };
   }
   return { kind: r.kind, why: r.why ?? null, qi, tries: cur.tries };
+}
+
+// Signalement d'un essai refusé : même forme normalisée que dans answer_stats ; rien pour un e-mail ou un numéro.
+async function contest(rpc, uid, qi, input) {
+  const text = typeof input === "string" ? input.trim().slice(0, 200) : "";
+  if (!text || personal(text)) return { ok: false };
+  return { ok: (await rpc("quiz_contest", { uid, qi, txt: norm(text).slice(0, 120) })) === true };
 }

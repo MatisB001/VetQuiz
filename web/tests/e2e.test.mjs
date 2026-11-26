@@ -98,6 +98,12 @@ await page.fill("#ans", "Echo"); await page.click("#submit");
 await page.waitForSelector("#fb:not([hidden])");
 ok(/Echo/.test(await page.locator("#fb").textContent()) && /\+5/.test(await page.locator("#fb .pts").textContent()), "réponse acceptée : niveau 5");
 ok(/visibles demain/.test(await page.locator("#fb").textContent()), "liste des réponses annoncée pour demain"); await shot("2-reponse");
+ok(await page.locator("#fb .contest button").count() === 1, "« Ma réponse était bonne » : un bouton par essai refusé");
+const contested0 = Number(psql("select coalesce(sum(contested), 0) from public.answer_stats"));
+await page.click("#fb .contest button");
+await page.waitForFunction(() => /signalée, merci/.test(document.querySelector("#fb .contest button").textContent));
+ok(Number(psql("select coalesce(sum(contested), 0) from public.answer_stats where not accepted and answer = 'zzzz'")) >= 1 &&
+   Number(psql("select coalesce(sum(contested), 0) from public.answer_stats")) === contested0 + 1, "signalement enregistré par le serveur, sans joueur");
 
 // Rechargement en pleine question : le chronomètre continue.
 await page.click("#next");
