@@ -45,7 +45,20 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
-5. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
+5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil ; rejouable).
+6. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
+7. Cloudflare Pages : projet relié au dépôt, sans commande de build, dossier de sortie `public`.
+
+## Site de production
+
+`public/` est construit par `node scripts/build-web.mjs <maquette/src> <cartes/build>` à partir du gabarit partagé de la maquette, de la série de cartes et de `web/live.js` (branchement sur Supabase), puis servi tel quel par Cloudflare Pages.
+
+- La page ne contient aucune question ni réponse (le script échoue sinon) et ne charge rien d'un autre site : supabase-js 2.118.0 est copié dans `web/vendor/` (licence MIT), la police est intégrée.
+- `web/config.json` : adresse du projet et clé publishable (publique, faite pour le navigateur). Jamais la clé secrète.
+- `public/_headers` : politique de sécurité du contenu (connexions vers le seul projet Supabase), pas de référent, pas de caméra ni de micro.
+- Aucune session n'est créée à la simple visite : la session invitée naît au premier clic sur « Jouer ».
+- Relancer le build quand la maquette ou les cartes changent, puis pousser `public/`.
+- Test dans Chromium contre un faux Supabase (vraie base locale, vraie fonction de correction) : `web/tests/e2e.test.mjs`, lancé par `scripts/test-db.sh` si les fichiers de la maquette sont présents.
 
 Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 29/29 ok »).
 
@@ -57,6 +70,6 @@ Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à inst
 
 ## Reste à faire
 
-1. Brancher le site sur Supabase (connexion, invités, partie du jour via la fonction `quiz`, profil, amis, ligues, écoles, liste des réponses de la veille).
+1. Comptes sur le site : connexion par code e-mail, profil, amis, ligues, écoles (la partie du jour en invité et la liste des réponses de la veille sont faites).
 2. Planifier `purge_inactive_accounts()` et `purge_anonymous_sessions()`.
-3. Configurer le prestataire d'e-mails dans Supabase (Scaleway recommandé, choix de Seb attendu).
+3. Configurer l'envoi d'e-mails dans Supabase : Scaleway Transactional Email (choix de Seb, 26/11/2026), une fois le nom de domaine acheté.

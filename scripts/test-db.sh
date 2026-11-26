@@ -28,3 +28,14 @@ echo "Partie du jour (fonction de correction) :"
 PGHOST="$DIR" PGPORT="$PORT" PGUSER=postgres PGDATABASE=postgres node "$ROOT/supabase/tests/quiz_flow.test.mjs"
 echo "Fonction Edge (enveloppe HTTP) :"
 PGHOST="$DIR" PGPORT="$PORT" PGUSER=postgres PGDATABASE=postgres node "$ROOT/supabase/tests/quiz_http.test.mjs"
+echo "Contrôle du vrai projet (verify_live.sql), rejoué ici :"
+out="$("${P[@]}" -f "$ROOT/supabase/tests/verify_live.sql" 2>&1 || true)"
+echo "$out" | grep -o 'VÉRIFICATION.*' | sed 's/^/  /'
+echo "$out" | grep -q 'ÉCHECS' && exit 1
+# Site de production dans un vrai navigateur, si les fichiers de la maquette sont disponibles.
+SRC="${VQ_MAQUETTE:-/mnt/project-files/vetquiz/maquette/src}"; CARDS="${VQ_CARTES:-/mnt/project-files/vetquiz/cartes/build}"
+if [ -f "$SRC/site.tpl.html" ] && [ -f "$CARDS/carddata2.js" ]; then
+  echo "Site (navigateur) :"
+  VQ_URL=http://faux-supabase.test VQ_KEY=test node "$ROOT/scripts/build-web.mjs" "$SRC" "$CARDS" "$DIR/site" 2>/dev/null
+  PGHOST="$DIR" PGPORT="$PORT" PGUSER=postgres PGDATABASE=postgres VQ_SITE="$DIR/site" node "$ROOT/web/tests/e2e.test.mjs"
+else echo "Site (navigateur) : ignoré, fichiers de la maquette absents."; fi

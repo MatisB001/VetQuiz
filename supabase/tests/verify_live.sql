@@ -75,6 +75,8 @@ begin
   total := total + 1;
   begin j := public.quiz_state(u1);
         if (j ->> 'next')::int <> 0 or jsonb_array_length(j -> 'questions') <> 0 then r := r || 'quiz_state : état inattendu'::text; end if;
+        total := total + 1;
+        if jsonb_array_length(coalesce(j -> 'themes', '[]')) <> 7 then r := r || 'quiz_state : thèmes du jour absents (migration 20261126030000_themes.sql)'::text; end if;
   exception when others then r := r || ('quiz_state (serveur) : ' || sqlerrm); end;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
