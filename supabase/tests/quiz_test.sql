@@ -15,8 +15,8 @@ begin if not coalesce(ok, false) then raise exception 'ÉCHEC : %', what; end if
 insert into auth.users (id, email) values ('10000000-0000-0000-0000-000000000001', 'q1@exemple.fr'),
                                           ('10000000-0000-0000-0000-000000000002', 'q2@exemple.fr');
 insert into auth.users (id, is_anonymous, created_at) values
-  ('10000000-0000-0000-0000-0000000000a1', true, now() - interval '40 days'),   -- invité inactif
-  ('10000000-0000-0000-0000-0000000000a2', true, now() - interval '40 days'),   -- invité qui joue encore
+  ('10000000-0000-0000-0000-0000000000a1', true, now() - interval '100 days'),  -- invité inactif
+  ('10000000-0000-0000-0000-0000000000a2', true, now() - interval '100 days'),  -- invité qui joue encore
   ('10000000-0000-0000-0000-0000000000a3', true, now());                        -- invité récent
 select public.quiz_state('10000000-0000-0000-0000-000000000001');
 select public.quiz_state('10000000-0000-0000-0000-0000000000a2');
@@ -75,7 +75,7 @@ insert into public.daily_results values ('10000000-0000-0000-0000-0000000000a2',
 insert into public.cards_owned values ('10000000-0000-0000-0000-0000000000a1', 'affen', '2026-10-01');
 select pg_temp.check(true, 'invité : scores et cartes enregistrables');
 
--- 6. Purge des invités sans partie depuis 30 jours.
+-- 6. Purge des invités sans partie depuis 90 jours.
 select pg_temp.check(public.purge_anonymous_sessions() = 1, 'purge : 1 invité inactif supprimé');
 reset role;
 select pg_temp.check(not exists (select 1 from auth.users where id = '10000000-0000-0000-0000-0000000000a1'), 'purge : le bon invité');

@@ -38,7 +38,7 @@ const A = "20000000-0000-0000-0000-0000000000a1";   // invité
 const B = "20000000-0000-0000-0000-000000000001";   // joueur parfait
 sql(`insert into auth.users (id, is_anonymous) values ('${A}', true); insert into auth.users (id, email) values ('${B}', 'b@exemple.fr')`);
 const play = (uid, body) => handle(rpc, uid, body);
-const logCount = () => Number(sql("select count(*) from public.answer_log"));
+const logCount = () => Number(sql("select coalesce(sum(n), 0) from public.answer_stats"));
 
 // 1. État initial : aucune question ni réponse visible avant de démarrer.
 let st = await play(A, { action: "state" });
@@ -70,8 +70,12 @@ ok(r.kind === "multi", "deux réponses d'un coup refusées");
 r = await play(A, { action: "answer", qi: 0, text: "écho" });
 ok(r.kind === "ok" && r.tier === 5 && r.label === "Echo (écho)" && r.done === false, "réponse acceptée : niveau 5");
 ok(r.accepted === undefined && r.alts === undefined, "réponse acceptée : liste cachée jusqu'au lendemain");
-ok(sql("select tier from public.answer_log order by id desc limit 1") === "5", "réponse acceptée : journalisée avec son niveau");
+ok(sql("select n || ':' || tier from public.answer_stats where accepted and answer = 'Echo (écho)'") === "1:5", "réponse acceptée : comptée avec son niveau, sous son libellé");
+ok(sql("select count(*) from information_schema.columns where table_name = 'answer_stats' and column_name in ('day', 'user_id')") === "0", "statistiques : ni date ni identifiant");
 await rejects(play(A, { action: "answer", qi: 0, text: "Alpha" }), 409, "question déjà répondue");
+
+// 3 bis. Un essai refusé est compté sous sa forme normalisée, sans date ni joueur.
+ok(sql("select n from public.answer_stats where not accepted and answer = 'zzzz'") === "1", "essai refusé : compté une fois");
 
 // 4. Passer une question (texte vide) : 0 point.
 await play(A, { action: "start", qi: 1 });

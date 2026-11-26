@@ -35,15 +35,16 @@ async function answer(rpc, uid, qi, input, final) {
   if (!cur || cur.qi !== qi) throw new QuizError(409, "question hors ordre");
   const q = prepare({ q: cur.question.q, ans: cur.question.answers });
   const r = cur.expired || cur.too_many ? { kind: "closed" } : judge(q, text);
-  const log = (tier) => rpc("quiz_log", { question_id: cur.question.id, answer_norm: norm(text), tier });
+  // Statistiques sans identifiant : libellé de la réponse acceptée, ou essai refusé normalisé.
+  const log = (answer, tier, accepted) => rpc("quiz_log", { question_id: cur.question.id, answer, tier, accepted });
 
   if (r.kind === "ok") {
-    await log(r.tier);
+    await log(r.label, r.tier, true);
     const res = await rpc("quiz_answer", { uid, qi, tier: r.tier, label: r.label });
     // Les autres réponses possibles ne sont montrées que si la liste complète l'est aussi.
     return { kind: "ok", ...res, ...(res.accepted ? { alts: r.alts } : {}) };
   }
-  if (r.kind === "miss") await log(0);
+  if (r.kind === "miss") await log(norm(text), 0, false);
   if (cur.expired || cur.too_many || final || r.kind === "empty") {
     const res = await rpc("quiz_answer", { uid, qi, tier: 0, label: null });
     const kind = cur.expired ? "timeout" : cur.too_many ? "too_many" : final ? "timeout" : "pass";

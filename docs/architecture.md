@@ -19,7 +19,7 @@ Document de référence complet, avec comparatif et sources : https://claude.ai/
 | `cards_owned` | cartes obtenues | le joueur |
 | `friendships`, `leagues`, `league_members` | relations | les personnes concernées |
 | `reports` | signalements | modération (clé serveur) |
-| `answer_log` | réponses normalisées, sans aucun identifiant | serveur uniquement |
+| `answer_stats` | compteurs par réponse (acceptée ou refusée), sans identifiant ni date | serveur uniquement |
 | `questions` | questions et réponses acceptées | serveur uniquement |
 | `cards` | série de cartes (identifiant, rareté, espèce) | tout le monde |
 | `quiz_runs` | partie du jour : questions tirées, niveau et réponse retenue par question, carte gagnée | le joueur |
@@ -35,7 +35,8 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - Chaque essai est corrigé par le même moteur que la maquette (`matcher.js`, copié par `scripts/sync-matcher.mjs`). Le premier essai accepté termine la question ; au plus 20 essais par question.
 - À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
 - **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
-- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 30 jours supprimées par `purge_anonymous_sessions()` (30 jours : exemple de la documentation Supabase, à valider avec le fil RGPD ; à planifier).
+- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée provisoire, choix de Seb attendu ; à planifier).
+- Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD).
 - Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
 
 ## Mise en service (dans l'ordre)

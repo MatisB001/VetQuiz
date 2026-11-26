@@ -219,23 +219,37 @@ begin
           from unnest(r.question_ids) with ordinality x(id, i) join questions q on q.id = x.id);
 end $$;
 
--- Journal anonyme des réponses (acceptées et refusées), pour recalculer les niveaux et enrichir les synonymes.
-create or replace function public.quiz_log(question_id text, answer_norm text, tier int) returns void
+-- Statistiques des réponses, pour recalculer les niveaux (réponses acceptées) et enrichir les synonymes (essais
+-- refusés) : un compteur par réponse, sans identifiant ni date. Remplace answer_log, une ligne datée par réponse,
+-- qu'on pouvait recouper avec quiz_runs pour retrouver un joueur (avis du fil RGPD, 26/11/2026).
+drop table public.answer_log;
+create table public.answer_stats (
+  question_id text not null,
+  accepted    boolean not null,              -- vrai : libellé de la réponse acceptée ; faux : essai refusé, normalisé
+  answer      text not null check (char_length(answer) between 1 and 120),
+  tier        smallint not null check (tier between 0 and 5),
+  n           int not null default 1,
+  primary key (question_id, accepted, answer)
+);
+alter table public.answer_stats enable row level security;   -- aucune politique : serveur uniquement
+
+create or replace function public.quiz_log(question_id text, answer text, tier int, accepted boolean) returns void
   language sql security definer set search_path = public as $$
-  insert into answer_log (question_id, day, answer_norm, tier)
-  select question_id, paris_today(), left(answer_norm, 120), greatest(0, least(5, tier))
-  where coalesce(answer_norm, '') <> '';
+  insert into answer_stats as s (question_id, accepted, answer, tier)
+  select question_id, accepted, left(answer, 120), greatest(0, least(5, tier))
+  where coalesce(answer, '') <> ''
+  on conflict (question_id, accepted, answer) do update set n = s.n + 1, tier = excluded.tier;
 $$;
 
--- Sessions anonymes : Supabase ne les supprime pas lui-même (sa documentation propose 30 jours).
--- On efface celles qui n'ont joué aucune partie depuis 30 jours, avec leurs scores et leurs cartes. À planifier.
+-- Sessions anonymes : Supabase ne les supprime pas lui-même. On efface celles qui n'ont joué aucune partie
+-- depuis 90 jours, avec leurs scores et leurs cartes (durée provisoire, choix de Seb attendu). À planifier.
 create or replace function public.purge_anonymous_sessions() returns int
   language plpgsql security definer set search_path = public as $$
 declare n int;
 begin
   delete from auth.users u
-   where u.is_anonymous is true and u.created_at < now() - interval '30 days'
-     and not exists (select 1 from quiz_runs r where r.user_id = u.id and r.day > paris_today() - 30);
+   where u.is_anonymous is true and u.created_at < now() - interval '90 days'
+     and not exists (select 1 from quiz_runs r where r.user_id = u.id and r.day > paris_today() - 90);
   get diagnostics n = row_count;
   return n;
 end $$;
@@ -243,11 +257,11 @@ end $$;
 -- Droits sur les tables, explicites, sans dépendre du réglage « accès API automatique » de Supabase :
 -- lecture seule pour le navigateur, aucune écriture des scores, cartes, parties ni questions.
 revoke all on public.questions, public.quiz_runs, public.cards, public.cards_owned, public.daily_results,
-  public.answer_log from anon, authenticated;
+  public.answer_stats from anon, authenticated;
 grant select on public.cards to anon, authenticated;
 grant select on public.quiz_runs, public.cards_owned, public.daily_results to authenticated;
 grant all on public.questions, public.quiz_runs, public.cards, public.cards_owned, public.daily_results,
-  public.answer_log to service_role;
+  public.answer_stats to service_role;
 
 -- Export RGPD : on ajoute les parties (niveau et réponse retenue pour chaque question).
 create or replace function public.export_my_data() returns jsonb
@@ -270,11 +284,11 @@ $$;
 -- Ces fonctions prennent l'identifiant du joueur en paramètre : elles sont réservées au serveur.
 revoke execute on function public.quiz_state(uuid), public.quiz_start(uuid, int), public.quiz_attempt(uuid),
   public.quiz_expire(uuid), public.quiz_draw(uuid, int), public.quiz_answer(uuid, int, int, text),
-  public.quiz_review(uuid, date), public.quiz_log(text, text, int), public.quiz_day_questions(date),
+  public.quiz_review(uuid, date), public.quiz_log(text, text, int, boolean), public.quiz_day_questions(date),
   public.quiz_accepted(text), public.purge_anonymous_sessions()
   from public, anon, authenticated;
 grant execute on function public.quiz_state(uuid), public.quiz_start(uuid, int), public.quiz_attempt(uuid),
   public.quiz_expire(uuid), public.quiz_draw(uuid, int), public.quiz_answer(uuid, int, int, text),
-  public.quiz_review(uuid, date), public.quiz_log(text, text, int), public.quiz_day_questions(date),
+  public.quiz_review(uuid, date), public.quiz_log(text, text, int, boolean), public.quiz_day_questions(date),
   public.quiz_accepted(text), public.purge_anonymous_sessions()
   to service_role;
