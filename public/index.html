@@ -674,7 +674,7 @@ function paintVars(el,c){const R=RAR[c.tier];el.style.setProperty("--t",R.t);el.
 
 /* ---------- Données : questions (base fournie, 25 questions ; sources à renseigner) ---------- */
 const QBANK=[];
-const LV=["Aucun point","Étudiant","Carte verte","Généraliste","Spécialiste","Professeur"];
+const LV=["Aucun point","Étudiant","Carte verte","Généraliste","Résident","Spécialiste"];   /* noms des niveaux : choix de Seb du 27/11/2026 (Professeur → Spécialiste, Spécialiste → Résident) */
 const PTS=[0,1,2,3,4,5];
 const PCOL=["#5b6585","#c9cfe0","#7cc96e","#6ea2ee","#ee86c0","#ffd45c"];
 /* sachets : mêmes raretés que les cartes ; seuils provisoires (7 = une réponse Étudiant par question en moyenne, 14 = Carte verte, 21 = Généraliste) */
@@ -956,7 +956,7 @@ function submit(input,timeout){if(answered)return;const q=Q[qi],txt=(input||"").
   const fb=$("fb");fb.style.setProperty("--pc",PCOL[tier]);
   fb.innerHTML=`<div class="fb-head">${head}<span class="pts">+${pts}</span></div>
    <div class="scale">${[1,2,3,4,5].map(t=>`<div class="${t===tier?"hit":""}" style="--pc:${PCOL[t]}"><b>${PTS[t]}</b><span class="lvn">${LV[t]}</span></div>`).join("")}</div>
-   <p>${msg}</p>${top.length?`<p><b>Niveau Professeur :</b> ${top.join(" ; ")}.</p>`:""}
+   <p>${msg}</p>${top.length?`<p><b>Niveau ${LV[5]} :</b> ${top.join(" ; ")}.</p>`:""}
    <details class="allans"><summary>Voir les ${q.ans.length} réponses acceptées</summary><ul>${[5,4,3,2,1].map(t=>{const L=q.ans.filter(a=>a[1]===t);return L.length?`<li style="--pc:${PCOL[t]}"><b>${t} · ${LV[t]}</b> ${L.map(a=>{const m=esc(splitLabel(a[0]).main);return a[0]===r.label?`<mark>${m}</mark>`:m;}).join(" ; ")}</li>`:"";}).join("")}</ul></details>
    <p class="src">Source : non renseignée dans la base${q.ref?` (domaine : ${esc(q.ref)})`:""}. Réponses à faire valider par un vétérinaire.</p>
    <button class="btn" id="next">${qi<6?"Question suivante":"Voir mon sachet"}</button>`;
