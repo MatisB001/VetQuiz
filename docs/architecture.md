@@ -80,6 +80,8 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 
 ## Site de production
 
+Pages juridiques (Mentions légales, Confidentialité, CGU, pied de page de toutes les vues sauf partie et sachet) : texte tiré de `juridique/*.md` du dossier partagé et copié dans le gabarit par `node scripts/sync-legal.mjs <juridique> <maquette/src/site.tpl.html>`, qui retire les notes internes, remplace les crochets tranchés par le code (clés de stockage local, durée de session) et liste ceux qui restent. Relancer après chaque modification des Markdown, puis les builds.
+
 `public/` est construit par `node scripts/build-web.mjs <maquette/src> <cartes/build>` à partir du gabarit partagé de la maquette, de la série de cartes et de `web/live.js` (branchement sur Supabase), puis servi tel quel par Cloudflare Pages.
 
 - La page ne contient aucune question ni réponse (le script échoue sinon) et ne charge rien d'un autre site : supabase-js 2.118.0 est copié dans `web/vendor/` (licence MIT), la police est intégrée.

@@ -65,6 +65,21 @@ h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1;text-wrap:bala
 .btn:disabled{opacity:.5;cursor:default}
 .linkbtn{background:none;border:0;padding:4px 0;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:13px}
 .note{color:var(--muted);font-size:11.5px;margin:0;text-align:center;text-wrap:balance}
+.disclaimer{font-size:12px;color:var(--muted-ink);margin:6px 0 0;border-left:3px solid var(--ink);padding-left:8px}
+.sitefoot{text-align:center;font-size:12px;color:var(--muted);padding:6px 0 4px}
+.sitefoot a{color:inherit;text-underline-offset:3px}
+body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
+.legal h2{font-family:var(--font-display);font-size:22px;line-height:1.15;margin:10px 0 6px;text-wrap:balance}
+.legal h3{font-family:var(--font-display);font-size:16px;margin:16px 0 6px}
+.legal p,.legal li{font-size:13px;line-height:1.5}
+.legal p{margin:6px 0}.legal ul{margin:6px 0;padding-left:20px}
+.legal code{font-size:12px;background:var(--paper-2);padding:0 3px}
+.legal a{color:inherit;text-underline-offset:3px}
+.legal .tablewrap{overflow-x:auto;margin:8px 0}
+.legal table{border-collapse:collapse;font-size:12px;line-height:1.4;min-width:560px}
+.legal th,.legal td{border:2px solid var(--ink);padding:5px 6px;text-align:left;vertical-align:top}
+.legal th{background:var(--paper-2)}
+.legal .upd{color:var(--muted-ink);font-size:12px;margin-top:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
 /* ---------- Accueil ---------- */
@@ -429,6 +444,7 @@ body.day-opened .next{display:none}
         <li><i>3</i><span><b>1 sachet par jour</b> à ouvrir : une nouvelle race pour votre classeur</span></li>
       </ol>
       <p class="lede lede-ex">Ex. « Citez une race de chien » : Labrador 1 point, Xoloitzcuintle 5 points. Votre première réponse acceptée est définitive.</p>
+      <p class="disclaimer">Contenu pédagogique, pas un avis vétérinaire.</p>
       <ul class="themes" id="themes" aria-label="Thèmes du jour"></ul>
       <div id="heroPlay"><button class="btn big" id="play">Jouer</button></div>
       <div class="done-box" id="heroDone" hidden>
@@ -626,6 +642,92 @@ body.day-opened .next{display:none}
       <ul class="srcs" id="srcList" style="margin-top:8px"></ul>
     </div>
   </section>
+
+  <!-- ===== Pages juridiques (texte copié de juridique/*.md par scripts/sync-legal.mjs ; ne pas modifier ici) ===== -->
+  <section class="view legal" id="v-legal" aria-label="Informations juridiques" hidden>
+    <div class="panel">
+      <button class="linkbtn" id="legalBack">← Retour</button>
+<!--LEGAL:start-->
+<article class="legal-doc" id="legal-mentions" data-doc="mentions" hidden>
+<h2>Mentions légales</h2>
+<h3>Éditeur du site</h3>
+<p>Le site vetquiz.net est édité par un particulier à titre non professionnel. Conformément à l'article 1-1, II de la LCEN, ses éléments d'identification ont été communiqués à l'hébergeur ci-dessous, qui ne peut les divulguer que sur réquisition judiciaire.<br>Contact : <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a></p>
+<h3>Hébergeur</h3>
+<p>Cloudflare, Inc. (Cloudflare Pages), 101 Townsend St, San Francisco, CA 94107, États-Unis, +1 (650) 319-8930</p>
+<h3>Prestataires de stockage des données (le cas échéant, art. 1-1, I, 5° LCEN)</h3>
+<p>Supabase Pte. Ltd, 65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513 (base de données et comptes, données stockées dans la région de Paris) ; Scaleway SAS, 8 rue de la Ville-l'Évêque, 75008 Paris (envoi des e-mails de connexion, France)</p>
+<h3>Propriété intellectuelle et crédits</h3>
+<ul><li>Textes des questions et fiches vétérinaires : rédigés avec l'assistance d'une intelligence artificielle puis vérifiés dans les sources citées sur chaque fiche. Tous droits réservés (voir l'article 9 des CGU).</li><li>Dessins des animaux : <b>images générées par intelligence artificielle</b> (Google Gemini, selon l'éditeur), retouchées et découpées par l'éditeur.</li><li>Les noms des écoles vétérinaires sont cités à titre purement informatif ; vetquiz.net n'est affilié à aucune école ni à aucun organisme vétérinaire.</li></ul>
+<h3>Signaler un contenu ou exercer vos droits</h3>
+<ul><li>Contenu illicite ou inapproprié : bouton « Signaler » ou <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a></li><li>Données personnelles : voir la <a href="#confidentialite" data-legal="confidentialite">politique de confidentialité</a>.</li></ul>
+<p class="upd">Dernière mise à jour : 27/11/2026</p>
+</article>
+<article class="legal-doc" id="legal-confidentialite" data-doc="confidentialite" hidden>
+<h2>Politique de confidentialité de vetquiz.net</h2>
+<h3>En bref</h3>
+<ul><li>Vous pouvez jouer <b>sans compte</b> et sans donner d'e-mail : un identifiant aléatoire, gardé dans votre navigateur, permet de sauvegarder votre partie sur nos serveurs.</li><li>Avec un compte, nous ne demandons qu'<b>un pseudo</b> (public) et <b>une adresse e-mail</b> (jamais affichée), plus votre école vétérinaire si vous le souhaitez.</li><li>Pas de publicité, pas de revente, pas de cookies de suivi, pas de bandeau cookies, car nous n'en utilisons aucun qui l'exige.</li><li>Pour ajuster la difficulté, nous utilisons des statistiques sur les réponses, sans lien avec votre identité.</li><li>Vous pouvez <b>télécharger ou supprimer</b> votre compte à tout moment depuis « Mon compte ».</li></ul>
+<h3>1. Qui est responsable de vos données ?</h3>
+<p>Le responsable de traitement est l'éditeur du site, un particulier agissant à titre non professionnel (voir les mentions légales), joignable à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.<br>Contact pour toute question ou demande : <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.</p>
+<h3>2. Quelles données, pourquoi, sur quelle base, combien de temps ?</h3>
+<div class="tablewrap"><table><thead><tr><th>Usage</th><th>Données</th><th>Base légale (RGPD)</th><th>Durée de conservation</th></tr></thead><tbody><tr><td>Jouer sans compte</td><td>Identifiant aléatoire de session (sans e-mail), scores, cartes, série, parties jouées</td><td>Exécution du service demandé, art. 6.1.b</td><td><b>Suppression automatique après 90 jours sans partie.</b> Si vous ajoutez un e-mail, la session devient un compte</td></tr><tr><td>Créer et gérer votre compte</td><td>Pseudo, e-mail, école (facultative), date de création, date de dernière connexion</td><td>Exécution du contrat (CGU), art. 6.1.b</td><td>Durée du compte. <b>Suppression automatique après 2 ans sans connexion</b>, avec un e-mail d'avertissement 30 jours avant</td></tr><tr><td>Vous connecter</td><td>E-mail, code de connexion à 6 chiffres à usage unique, jeton de session</td><td>Exécution du contrat, art. 6.1.b</td><td>Code : 10 minutes, 5 essais maximum ; session : jusqu'à la déconnexion ou l'effacement des données du navigateur (le jeton d'accès, valable 1 heure, est renouvelé automatiquement)</td></tr><tr><td>Sauvegarder votre progression</td><td>Scores du jour, cartes obtenues, série ; pour chaque jour joué : les questions tirées, le niveau obtenu et la réponse acceptée correspondante (le texte que vous tapez n'est pas conservé)</td><td>Exécution du contrat, art. 6.1.b</td><td>Durée du compte (ou de la session sans compte)</td></tr><tr><td>Amis</td><td>Liste des amis (acceptés des deux côtés), demandes en attente</td><td>Exécution du contrat, art. 6.1.b</td><td>Jusqu'au retrait de l'ami ou la suppression d'un des comptes ; demandes non acceptées : 30 jours</td></tr><tr><td>Ligues et classements</td><td>Nom de ligue, membres (pseudos), classement hebdomadaire</td><td>Exécution du contrat, art. 6.1.b</td><td>Tant que la ligue existe et que vous en êtes membre</td></tr><tr><td>Améliorer la difficulté des questions</td><td>Compteurs par question et par réponse (réponse acceptée : son libellé officiel ; essai refusé : texte simplifié, sans accents ni ponctuation), avec le niveau et le nombre de fois où elle a été donnée. Ni identifiant, ni IP, ni date, ni ligne par joueur</td><td>Données anonymes : hors champ du RGPD (considérant 26), <b>à condition qu'aucun recoupement ne soit possible</b></td><td>Sans limite (données anonymes)</td></tr><tr><td>Modération et signalements</td><td>Contenu signalé, motif, décision, pseudo concerné</td><td>Obligation légale (art. 6.1.c, règlement (UE) 2022/2065, DSA) et intérêt légitime à assurer un espace sain (art. 6.1.f)</td><td><code>[À FOURNIR : ex. 1 an après la décision]</code></td></tr><tr><td>Sécurité du service</td><td>Journaux techniques (adresse IP, date, page demandée)</td><td>Intérêt légitime (art. 6.1.f) : prévenir les abus</td><td>1 an maximum (la CNIL recommande 6 mois à 1 an, délibération n° 2021-122)</td></tr><tr><td>Répondre à vos demandes</td><td>E-mail, contenu de la demande</td><td>Obligation légale (art. 12 à 22 RGPD)</td><td>1 an après la réponse</td></tr></tbody></table></div>
+<p>Nous ne collectons <b>ni votre nom réel, ni votre date de naissance, ni de mot de passe</b>. Aucune donnée sensible (art. 9 RGPD) n'est demandée. Aucune décision automatisée produisant des effets juridiques (art. 22 RGPD) n'est prise.</p>
+<h3>3. Qui voit vos données ?</h3>
+<ul><li><b>Les autres joueurs</b> voient votre <b>pseudo</b>, votre école si vous l'avez indiquée, vos scores dans les classements de vos ligues et de vos amis. Ils ne voient <b>jamais</b> votre e-mail.</li><li><b>Nos prestataires techniques</b>, qui agissent uniquement sur nos instructions (sous-traitants, art. 28 RGPD) :<ul><li>hébergement du site : Cloudflare Pages (Cloudflare, Inc., États-Unis ; transferts encadrés par le Data Privacy Framework UE–États-Unis et, à défaut, par les clauses contractuelles types)</li><li>base de données et comptes : Supabase (contractant : Supabase Pte. Ltd, Singapour), données stockées dans la région de Paris (France)</li><li>réception des messages envoyés à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a> : Cloudflare Email Routing (Cloudflare, Inc.), qui les transfère à l'éditeur</li><li>envoi des codes de connexion : Scaleway SAS (Paris), service Transactional Email, données traitées en France</li></ul></li><li><b>Les autorités</b>, uniquement sur réquisition légale.</li></ul>
+<p>Aucune donnée n'est vendue ni utilisée à des fins publicitaires.</p>
+<h3>4. Transferts hors de l'Union européenne</h3>
+<p>Vos données de compte sont stockées en France (région de Paris) par Supabase. Supabase et certains de ses propres sous-traitants techniques (fournisseurs de cloud) peuvent toutefois y accéder ou les traiter hors de l'Union européenne, notamment à Singapour et aux États-Unis. Ces transferts sont encadrés par les clauses contractuelles types adoptées par la Commission européenne (décision 2021/914). Les e-mails de connexion sont envoyés par Scaleway depuis la France, sans transfert hors de l'UE. Cloudflare (hébergement du site et réception des e-mails envoyés à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>) est une société américaine certifiée au Data Privacy Framework UE–États-Unis, avec les clauses contractuelles types en secours. Vous pouvez obtenir une copie de ces garanties en nous écrivant.</p>
+<h3>5. Cookies et stockage local</h3>
+<p>Nous utilisons uniquement des traceurs <b>strictement nécessaires</b> au service que vous demandez, exemptés de consentement par l'article 82 de la loi Informatique et Libertés :</p>
+<div class="tablewrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th></tr></thead><tbody><tr><td><code>vq-auth</code> (stockage local, session Supabase)</td><td>Retrouver votre partie, avec ou sans compte</td><td>Jusqu'à déconnexion, effacement par vous ou suppression de la session</td></tr><tr><td><code>vq-site-2</code> (stockage local)</td><td>Afficher sans attendre la partie du jour, vos cartes et votre série</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-missed</code> (stockage local)</td><td>Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée</td><td>Jusqu'à « Vider la liste » ou effacement par vous</td></tr><tr><td><code>vq-sound</code> (stockage local)</td><td>Mémoriser si le son est activé</td><td>Jusqu'à effacement par vous</td></tr></tbody></table></div>
+<p>Aucun cookie publicitaire, de réseau social ou de mesure d'audience tierce.</p>
+<h3>6. Vos droits</h3>
+<p>Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, de portabilité et d'opposition (art. 15 à 21 RGPD), ainsi que du droit de définir des directives sur le sort de vos données après votre décès (art. 85 loi Informatique et Libertés).</p>
+<ul><li><b>Directement dans « Mon compte »</b> : modifier votre pseudo ou votre école, télécharger vos données, supprimer votre compte.</li><li><b>Par e-mail</b> : <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>. Nous répondons dans un délai d'un mois (art. 12.3 RGPD). Nous pourrons vous demander de confirmer la demande depuis l'adresse e-mail du compte.</li><li><b>Réclamation</b> : vous pouvez saisir la CNIL (<a href="https://www.cnil.fr" rel="noopener">www.cnil.fr</a>, 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07).</li></ul>
+<h3>7. Âge minimum</h3>
+<p>La création d'un compte est réservée aux personnes de <b>15 ans ou plus</b>. Le jeu sans compte reste accessible à tous. Si nous apprenons qu'un compte a été créé par une personne plus jeune, il sera supprimé.</p>
+<h3>8. Sécurité</h3>
+<p>Connexion sans mot de passe (code à 6 chiffres envoyé par e-mail, valable 10 minutes, 5 essais maximum), échanges chiffrés (HTTPS), accès aux données limité à l'éditeur, journaux techniques à durée limitée. En cas de violation de données présentant un risque, nous la notifierons à la CNIL sous 72 h et, si le risque est élevé, nous vous en informerons (art. 33 et 34 RGPD).</p>
+<h3>9. Modifications</h3>
+<p>Toute modification importante sera signalée sur le site et, pour les titulaires d'un compte, par e-mail.</p>
+<p class="upd">Dernière mise à jour : 27/11/2026</p>
+</article>
+<article class="legal-doc" id="legal-cgu" data-doc="cgu" hidden>
+<h2>Conditions générales d'utilisation de vetquiz.net</h2>
+<h3>1. Objet</h3>
+<p>vetquiz.net (le « Site ») est un jeu de quiz pédagogique sur la médecine vétérinaire des chiens et des chats, édité par un particulier à titre non professionnel (voir les mentions légales). Les présentes CGU fixent les règles d'utilisation du Site. Elles sont acceptées lors de la création d'un compte ; la simple utilisation du Site sans compte vaut acceptation des articles 3, 5, 6 et 10.</p>
+<h3>2. Gratuité</h3>
+<p>Le Site est entièrement gratuit, sans publicité ni achat. Il n'existe aucune monnaie virtuelle et les cartes à collectionner n'ont aucune valeur marchande ; elles ne peuvent être ni vendues ni échangées contre de l'argent.</p>
+<h3>3. Accès</h3>
+<p>Le Site est accessible sans compte. L'éditeur peut suspendre l'accès pour maintenance ou interrompre le service ; dans ce dernier cas, les titulaires de compte sont prévenus 30 jours à l'avance et peuvent télécharger leurs données.</p>
+<h3>4. Compte</h3>
+<ul><li>Le compte est réservé aux personnes de <b>15 ans ou plus</b>.</li><li>Il est créé avec une adresse e-mail valide et un pseudo. Une seule personne par compte.</li><li>La connexion se fait par un code à 6 chiffres, à usage unique, envoyé par e-mail : vous êtes responsable de la sécurité de votre messagerie.</li><li>Vous pouvez supprimer votre compte à tout moment depuis « Mon compte ». La suppression est définitive (cartes, scores, amis, ligues).</li><li>Un compte sans connexion pendant <b>2 ans</b> est supprimé automatiquement, après un e-mail d'avertissement envoyé 30 jours avant.</li></ul>
+<h3>5. Nature du contenu : avertissement important</h3>
+<p>Le contenu du Site (questions, réponses, fiches de races et fiches vétérinaires) a une <b>vocation exclusivement pédagogique et ludique</b>. Il est rédigé avec l'aide d'outils d'intelligence artificielle et vérifié dans les sources citées, mais il peut contenir des erreurs, des simplifications ou des données dépassées.</p>
+<ul><li>Il <b>ne constitue pas un avis vétérinaire</b>, ne remplace ni une consultation, ni un examen clinique, ni les recommandations officielles ou les résumés des caractéristiques des produits.</li><li>Il ne doit pas servir à diagnostiquer, traiter ou prescrire pour un animal.</li><li>Pour la santé d'un animal, consultez un vétérinaire.</li><li>Les niveaux affichés (« Étudiant », « Carte verte », « Généraliste », « Résident », « Spécialiste ») sont des niveaux de jeu, <b>sans valeur de diplôme, de certification ou de formation continue</b>.</li></ul>
+<p>Vous pouvez signaler une erreur scientifique via <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a> ; les corrections sont apportées dans les meilleurs délais.</p>
+<h3>6. Dessins générés par intelligence artificielle</h3>
+<p>Les illustrations des animaux sont <b>générées par intelligence artificielle</b> (Google Gemini, selon l'éditeur) puis retouchées. Elles ne représentent pas fidèlement les standards de race.</p>
+<h3>7. Amis, ligues et contenus des joueurs</h3>
+<ul><li>Les amis s'ajoutent par code ami et nécessitent l'accord des deux joueurs. Il n'existe pas d'annuaire public des joueurs.</li><li>Toute personne ayant un compte peut créer une ligue et y inviter des joueurs par code. Les ligues « école contre école » sont des initiatives de joueurs : <b>elles n'engagent pas les écoles vétérinaires</b> et ne doivent pas utiliser leurs logos ou laisser croire à un partenariat officiel.</li><li>Pseudos, noms de ligue et tout autre texte que vous saisissez doivent respecter la loi et les personnes. Sont notamment interdits : propos injurieux, diffamatoires, haineux, discriminatoires, à caractère sexuel ; usurpation d'identité (dont celle d'une école ou d'un confrère) ; données personnelles d'autrui ; publicité.</li><li><b>Signalement</b> : chaque pseudo et chaque ligue comporte un bouton « Signaler ». Vous pouvez aussi écrire à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a> (point de contact unique, art. 11-12 DSA). Le signalement doit préciser le contenu et la raison (art. 16 du règlement (UE) 2022/2065, DSA).</li><li><b>Modération</b> : l'éditeur peut renommer ou supprimer un pseudo ou une ligue, ou suspendre un compte, en cas de manquement. La décision et ses motifs sont communiqués à l'utilisateur concerné, qui peut la contester en écrivant à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a> (art. 17 DSA). Les modérations sont faites par une personne, sans outil automatisé.</li></ul>
+<h3>8. Règles du jeu et loyauté</h3>
+<p>Le recours à des scripts, robots, comptes multiples ou toute manœuvre visant à fausser les scores ou les classements est interdit et peut entraîner la remise à zéro des scores ou la suppression du compte.</p>
+<h3>9. Propriété intellectuelle</h3>
+<p>Les textes, la mise en forme, le code et les illustrations du Site sont protégés par le droit d'auteur (tous droits réservés). Toute reproduction hors usage personnel nécessite l'accord de l'éditeur. Les sources scientifiques citées restent la propriété de leurs auteurs.</p>
+<h3>10. Responsabilité</h3>
+<p>L'éditeur s'efforce d'assurer l'exactitude du contenu et la disponibilité du Site, sans pouvoir les garantir. Sa responsabilité ne saurait être engagée en cas d'utilisation du contenu pédagogique pour la prise en charge d'un animal, contrairement à l'article 5.</p>
+<h3>11. Données personnelles</h3>
+<p>Voir la <a href="#confidentialite" data-legal="confidentialite">politique de confidentialité</a>.</p>
+<h3>12. Modification des CGU</h3>
+<p>Les CGU peuvent évoluer. Les titulaires de compte sont informés par e-mail des modifications importantes 15 jours avant leur entrée en vigueur ; ils peuvent supprimer leur compte s'ils les refusent.</p>
+<h3>13. Droit applicable et litiges</h3>
+<p>Les CGU sont soumises au droit français. En cas de litige, contactez d'abord <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.</p>
+<p class="upd">Dernière mise à jour : 27/11/2026</p>
+</article>
+<!--LEGAL:end-->
+    </div>
+  </section>
+
+  <footer class="sitefoot"><a href="#mentions" data-legal="mentions">Mentions légales</a><span aria-hidden="true"> · </span><a href="#confidentialite" data-legal="confidentialite">Confidentialité</a><span aria-hidden="true"> · </span><a href="#cgu" data-legal="cgu">CGU</a></footer>
 </div>
 
 <dialog id="dlg" aria-label="Carte">
@@ -863,7 +965,7 @@ const miniRO=typeof ResizeObserver!=="undefined"?new ResizeObserver(es=>es.forEa
 
 /* ---------- Navigation ---------- */
 let view="home";
-function go(v){if(v!=="game")stopTimer();view=v;document.querySelectorAll(".view").forEach(s=>s.hidden=s.id!=="v-"+v);
+function go(v){if(v!=="game")stopTimer();view=v;document.body.dataset.view=v;document.querySelectorAll(".view").forEach(s=>s.hidden=s.id!=="v-"+v);
   const tab={home:"home",game:"home",results:"home",pack:"home",binder:"binder",rules:"rules"}[v];
   document.querySelectorAll(".tabs button").forEach(b=>{if(b.dataset.v===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   if(v==="home")renderHome();if(v==="binder")renderBinder();if(v==="rules")renderRules();if(v==="results")renderResults();
@@ -1439,5 +1541,10 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
   refresh(false).catch(fail);
 })();
 
-go("home");
+/* pages juridiques : liens du pied de page (toutes les vues sauf partie et sachet) et liens entre documents */
+const LEGAL_IDS=["mentions","confidentialite","cgu"];let legalFrom="home";
+function showLegal(id){if(view!=="legal")legalFrom=["game","pack"].includes(view)?"home":view;document.querySelectorAll(".legal-doc").forEach(a=>a.hidden=a.dataset.doc!==id);go("legal");}
+document.addEventListener("click",e=>{const a=e.target.closest("a[data-legal]");if(!a)return;e.preventDefault();showLegal(a.dataset.legal);});
+$("legalBack").onclick=()=>go(legalFrom);
+{const h=location.hash.slice(1);if(LEGAL_IDS.includes(h))showLegal(h);else go("home");}
 </script>

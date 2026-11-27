@@ -169,6 +169,15 @@ await page.waitForFunction(() => document.querySelectorAll("#rvList .panel").len
 await shot("6-hier");
 ok(/Echo/.test(await page.locator("#rvList").textContent()) && (await page.locator("#rvList mark").first().textContent()) === "Bravo", "réponses d'hier : liste complète et réponse du joueur");
 
+// Pages juridiques (27/11/2026) : pied de page, avertissement pédagogique, aucune note interne publiée.
+await page.click("#rvBack");
+ok(await page.locator(".disclaimer").isVisible() && /pas un avis vétérinaire/.test(await page.locator(".disclaimer").textContent()), "avertissement pédagogique sur l'accueil");
+await page.click(".sitefoot [data-legal=cgu]");
+ok(await page.locator("#legal-cgu").isVisible() && !(await page.locator("#legal-mentions").isVisible()), "pied de page : les CGU s'ouvrent");
+const legalTxt = await page.locator("#v-legal").evaluate((el) => el.textContent);
+ok(!/Note interne|^Projet|Clause à faire|Professeur|sb-…-auth-token|à confirmer/m.test(legalTxt) && /vq-auth/.test(legalTxt), "pages juridiques : notes internes retirées, clés de stockage réelles");
+await page.click("#legalBack");
+
 // Nouveaux dessins (27/11/2026) : la carte charge le grand dessin à part, le classeur la vignette ; le dessin remplit la carte.
 const art = await page.evaluate(async () => {
   const cv = document.createElement("canvas"); cv.width = 500; cv.height = 400; await drawSprite(cv, "siamese", false, true);
