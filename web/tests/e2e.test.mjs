@@ -178,8 +178,8 @@ const art = await page.evaluate(async () => {
   return { h: bot - top + 1, cats: CARDS.filter((c) => c.sp === "cat").length, hd: CARDS.filter((c) => c.sp === "cat" && IMGHD[c.id]).length, dogsHd: CARDS.filter((c) => c.sp === "dog" && IMGHD[c.id]).length, gone: ["angora", "egyptianmau", "tonkinese", "turkishvan"].filter((i) => CARDS.some((c) => c.id === i)) };
 });
 ok(art.h >= 300 && art.h <= 340 && served.includes("dessins/siamese.png") && served.includes("dessins/mini/siamese.png"), `grand dessin chargé à part, à taille réelle s'il tient dans la carte (${art.h} px de haut)`);
-ok(art.cats === 38 && art.hd === 38 && art.gone.length === 0, "38 chats, tous avec un nouveau dessin ; les 4 chats retirés n'apparaissent plus");
-ok(art.dogsHd === 94, `94 chiens avec un nouveau dessin (${art.dogsHd})`);
+ok(art.cats === 40 && art.hd === 40 && art.gone.length === 0, "40 chats, tous avec un nouveau dessin ; les 4 chats retirés n'apparaissent plus");
+ok(art.dogsHd === 105, `105 chiens avec un nouveau dessin, dont les 11 nouvelles cartes (${art.dogsHd})`);
 ok(missing.length === 0, "aucun fichier manquant" + (missing.length ? " : " + missing.join(", ") : ""));
 ok(foreign.length === 0, "aucune requête vers un autre site" + (foreign.length ? " : " + foreign.join(", ") : ""));
 ok(errors.length === 0, "aucune erreur JavaScript" + (errors.length ? " : " + errors.join(" | ") : ""));

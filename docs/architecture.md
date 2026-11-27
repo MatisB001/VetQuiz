@@ -64,7 +64,8 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 ## Nouveaux dessins des chats et retrait de 4 chats (27/11/2026)
 - Seb a fourni de nouvelles planches. Les dessins sont recopiés tels quels (seul le liseré mêlé au fond magenta est rendu transparent), puis choisis par Seb ; voir `cartes/dessins-v3` dans le dossier du projet et `assemble.py` de la série de cartes.
 - Ils pèsent 100 à 240 Kio chacun : ils ne sont plus dans la page mais dans `public/dessins/<id>.png`, chargés quand une carte s'affiche ; le classeur charge une vignette (`public/dessins/mini/<id>.png`, 120 px au plus, réduction Lanczos). `IMG[id]` donne le sprite ou la vignette, `IMGHD[id]` le grand dessin.
-- Retirés « pour le moment » (pas de nouveau dessin) : Angora turc, Mau égyptien, Tonkinois, Van turc. Migration `20261127030000_retrait_chats.sql` (rejouable, à passer avant le lancement), puis `seed_cards.sql` : 252 cartes, rareté des chats recalculée sur 38 (le Korat passe de rare à commune).
+- Retirés « pour le moment » (pas de nouveau dessin) : Angora turc, Mau égyptien, Tonkinois, Van turc. Migration `20261127030000_retrait_chats.sql` (rejouable, à passer avant le lancement), puis `seed_cards.sql`.
+- Chiens : 94 races reçoivent le dessin choisi par Seb (planches V21 à V26). 13 nouvelles cartes avec leur dessin (11 chiens, Savannah et Peterbald) : la série passe à 265 cartes (225 chiens, 40 chats) ; raretés recalculées par espèce (Épagneul breton légendaire → épique, Entlebuch et PBGV rare → commune ; le Korat reste rare).
 
 ## Mise en service (dans l'ordre)
 
