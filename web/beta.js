@@ -37,6 +37,7 @@
     const q = Q[qi], fb = $("fb"), next = $("next");
     const src = fb.querySelector(".src");
     if (src) src.textContent = `Référence générale de la question : ${q.ref || "aucune"}. Bêta : réponses non vérifiées une à une, niveaux estimés.`;
+    if (qi === 6 && next) next.textContent = "Ouvrir mon sachet";
     const refused = [...new Set(tries.filter((t) => t.k === "miss").map((t) => t.s))];
     if (!refused.length || !next) return;
     const box = document.createElement("div");
@@ -50,6 +51,27 @@
     });
     next.before(box);
   };
+
+  /* fin de partie (demande de Seb, 27/11, à tester dans la bêta avant le site) : le sachet s'ouvre tout de suite
+     après la 7e question, et le résumé du score ne vient qu'après l'ouverture. */
+  const intro = document.createElement("p");
+  intro.className = "hint"; intro.id = "packIntro"; intro.hidden = true;
+  $("v-pack").prepend(intro);
+  nextQ = function () {
+    if (qi < 6) { qi++; showQ(); }
+    else { S.done = true; save(); openPackView(); }
+  };
+  const openPackView0 = openPackView;
+  openPackView = function () {
+    const sc = score();
+    intro.textContent = `Partie terminée : ${sc} point${sc > 1 ? "s" : ""}. Ouvrez votre ${packFor(sc).name.toLowerCase()} !`;
+    intro.hidden = false;
+    openPackView0();
+  };
+  $("packToBinder").textContent = "Voir mon résumé";
+  $("packToBinder").onclick = () => go("results");
+  const startGame0 = startGame;
+  startGame = function () { if (S.done && !S.opened) { openPackView(); return; } startGame0(); };
 
   /* écran de score : retours à envoyer, et rejouer pour tester */
   const res = $("copy") && $("copy").closest(".panel");
@@ -84,6 +106,6 @@
   };
 
   const st = document.createElement("style");
-  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}";
+  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}#packIntro{margin:0 0 6px;text-align:center;font-weight:600}";
   document.head.appendChild(st);
 })();
