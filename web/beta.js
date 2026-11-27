@@ -73,13 +73,29 @@
   const startGame0 = startGame;
   startGame = function () { if (S.done && !S.opened) { openPackView(); return; } startGame0(); };
 
+  /* rejouer (demande de Seb, 27/11) : mêmes 7 questions, nouveau sachet ; les cartes déjà gagnées restent dans le
+     classeur, et comme il n'y a jamais de doublon, le sachet suivant donne une autre race */
+  function replay() { S.answers = []; S.done = false; S.packId = null; S.opened = false; save(); startGame(); }
+  const doneRow = $("doneMain") && $("doneMain").parentElement;
+  if (doneRow) {
+    const rb = document.createElement("button");
+    rb.className = "btn ghost"; rb.id = "betaReplayHome"; rb.type = "button"; rb.textContent = "Rejouer";
+    rb.onclick = replay;
+    doneRow.appendChild(rb);
+    const renderHome0 = renderHome;
+    renderHome = function () {
+      renderHome0();
+      if (S.done && S.opened) $("donePack").textContent = "Sachet ouvert. Rejouez les questions pour gagner une autre carte.";
+    };
+  }
+
   /* écran de score : retours à envoyer, et rejouer pour tester */
   const res = $("copy") && $("copy").closest(".panel");
   if (res) {
     const panel = document.createElement("div");
     panel.className = "panel beta-panel";
     panel.innerHTML = `<p class="eyebrow">Bêta</p><h2>Vos retours</h2><p id="betaCount"></p>
-      <div class="row"><button class="btn" id="betaCopy" type="button">Copier mes retours</button><button class="btn ghost" id="betaReplay" type="button">Rejouer les 7 questions</button><span id="betaMsg" role="status" style="font-size:12px"></span></div>`;
+      <div class="row"><button class="btn" id="betaCopy" type="button">Copier mes retours</button><button class="btn ghost" id="betaReplay" type="button">Rejouer pour une autre carte</button><span id="betaMsg" role="status" style="font-size:12px"></span></div>`;
     res.after(panel);
     const lists = () => ({ miss: getMissed().filter((m) => ids.has(m.q)), cont: getC().filter((m) => ids.has(m.q)) });
     const count = () => { const { miss, cont } = lists(); $("betaCount").textContent = `${miss.length} réponse${miss.length > 1 ? "s" : ""} refusée${miss.length > 1 ? "s" : ""}, dont ${cont.length} signalée${cont.length > 1 ? "s" : ""} comme bonne${cont.length > 1 ? "s" : ""}. Copiez la liste et envoyez-la à Seb : elle reste sur votre appareil, sans votre nom.`; $("betaCopy").disabled = !miss.length && !cont.length; };
@@ -94,7 +110,7 @@
       try { navigator.clipboard.writeText(txt).then(ok, () => { $("betaMsg").textContent = "Copie impossible ici : faites une capture d'écran de cette liste."; }); }
       catch (e) { $("betaMsg").textContent = "Copie impossible ici."; }
     };
-    $("betaReplay").onclick = () => { S.answers = []; S.done = false; S.packId = null; S.opened = false; save(); startGame(); };
+    $("betaReplay").onclick = replay;
   }
 
   /* onglet Règles : description de la base de la bêta */
@@ -106,6 +122,6 @@
   };
 
   const st = document.createElement("style");
-  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}#packIntro{margin:0 0 6px;text-align:center;font-weight:600}";
+  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}#packIntro{margin:0 0 6px;text-align:center;font-weight:600}#heroDone .row{flex-wrap:wrap;gap:8px}";
   document.head.appendChild(st);
 })();
