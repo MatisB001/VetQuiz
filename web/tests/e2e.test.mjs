@@ -175,10 +175,11 @@ const art = await page.evaluate(async () => {
   const d = cv.getContext("2d").getImageData(0, 0, 500, 400).data; let top = 400, bot = 0;
   for (let y = 0; y < 400; y++) for (let x = 0; x < 500; x++) if (d[(y * 500 + x) * 4 + 3] > 0) { top = Math.min(top, y); bot = Math.max(bot, y); }
   const mi = document.createElement("canvas"); mi.width = mi.height = 160; await drawSprite(mi, "siamese", true);
-  return { h: bot - top + 1, cats: CARDS.filter((c) => c.sp === "cat").length, hd: Object.keys(IMGHD).length, gone: ["angora", "egyptianmau", "tonkinese", "turkishvan"].filter((i) => CARDS.some((c) => c.id === i)) };
+  return { h: bot - top + 1, cats: CARDS.filter((c) => c.sp === "cat").length, hd: CARDS.filter((c) => c.sp === "cat" && IMGHD[c.id]).length, dogsHd: CARDS.filter((c) => c.sp === "dog" && IMGHD[c.id]).length, gone: ["angora", "egyptianmau", "tonkinese", "turkishvan"].filter((i) => CARDS.some((c) => c.id === i)) };
 });
 ok(art.h >= 300 && art.h <= 340 && served.includes("dessins/siamese.png") && served.includes("dessins/mini/siamese.png"), `grand dessin chargé à part, à taille réelle s'il tient dans la carte (${art.h} px de haut)`);
 ok(art.cats === 38 && art.hd === 38 && art.gone.length === 0, "38 chats, tous avec un nouveau dessin ; les 4 chats retirés n'apparaissent plus");
+ok(art.dogsHd === 94, `94 chiens avec un nouveau dessin (${art.dogsHd})`);
 ok(missing.length === 0, "aucun fichier manquant" + (missing.length ? " : " + missing.join(", ") : ""));
 ok(foreign.length === 0, "aucune requête vers un autre site" + (foreign.length ? " : " + foreign.join(", ") : ""));
 ok(errors.length === 0, "aucune erreur JavaScript" + (errors.length ? " : " + errors.join(" | ") : ""));
