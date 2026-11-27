@@ -66,6 +66,7 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 - Ils pèsent 100 à 240 Kio chacun : ils ne sont plus dans la page mais dans `public/dessins/<id>.png`, chargés quand une carte s'affiche ; le classeur charge une vignette (`public/dessins/mini/<id>.png`, 120 px au plus, réduction Lanczos). `IMG[id]` donne le sprite ou la vignette, `IMGHD[id]` le grand dessin.
 - Retirés « pour le moment » (pas de nouveau dessin) : Angora turc, Mau égyptien, Tonkinois, Van turc. Migration `20261127030000_retrait_chats.sql` (rejouable, à passer avant le lancement), puis `seed_cards.sql`.
 - Chiens : 94 races reçoivent le dessin choisi par Seb (planches V21 à V26). 13 nouvelles cartes avec leur dessin (11 chiens, Savannah et Peterbald) : la série passe à 265 cartes (225 chiens, 40 chats) ; raretés recalculées par espèce (Épagneul breton légendaire → épique, Entlebuch et PBGV rare → commune ; le Korat reste rare).
+- Retirés ensuite « pour le moment » (décision de Seb, 27/11, 21 h 30) : Basset des Alpes, Braque de Weimar, Braque hongrois à poil court, Chien du pharaon, Poméranien, Saint-Bernard, Shiba, Welsh corgi Pembroke et Caniche (robe rose, absente du standard FCI n° 172). Migration `20261127040000_retrait_chiens.sql` (rejouable), puis `seed_cards.sql` : 256 cartes (216 chiens, 40 chats).
 
 ## Mise en service (dans l'ordre)
 
@@ -73,7 +74,7 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
-5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs), puis `20261127030000_retrait_chats.sql` et `supabase/seed_cards.sql` (dessins des chats) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
+5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs), puis `20261127030000_retrait_chats.sql`, `20261127040000_retrait_chiens.sql` et `supabase/seed_cards.sql` (dessins des chats) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
 6. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
 7. Cloudflare Pages : projet relié au dépôt, sans commande de build, dossier de sortie `public`.
 

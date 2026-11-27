@@ -28,11 +28,11 @@ begin
   total := total + 1; select count(*) into n from public.schools;
   if n <> 73 then r := r || ('écoles : ' || n); end if;
   total := total + 1; select count(*) into n from public.cards;
-  if n <> 265 then r := r || ('cartes : ' || n); end if;
+  if n <> 256 then r := r || ('cartes : ' || n); end if;
   total := total + 1; select count(*) into n from public.cards where species = 'cat';
   if n <> 40 then r := r || ('chats : ' || n); end if;
-  total := total + 1; select count(*) into n from public.cards where id = 'brittany' and tier = 'e';
-  if n <> 1 then r := r || 'rareté de l''Épagneul breton non mise à jour (seed_cards.sql)'::text; end if;
+  total := total + 1; select count(*) into n from public.cards where id = 'gwp' and tier = 'e';
+  if n <> 1 then r := r || 'rareté du Drahthaar non mise à jour (seed_cards.sql)'::text; end if;
   total := total + 1;
   begin insert into public.daily_results (user_id, day, score, tiers) values (u1, '2026-01-01', 35, '{5,5,5,5,5,5,5}');
         r := r || 'score écrit depuis le navigateur'::text;
