@@ -338,7 +338,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1;text-wrap:bala
 .chip[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
 /* classeur : les vraies cartes en petit (demande de Seb, 27/11/2026) ; la carte garde sa taille de base (286 px) et est réduite d'un bloc (--s, calculé par fitMinis) */
-.mini{position:relative;display:block;width:100%;aspect-ratio:63/88;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(2px 3px 0 var(--shadow))}
+.mini{position:relative;display:block;width:100%;aspect-ratio:63/88;border:0;padding:0;background:none;cursor:pointer;text-align:left;font:inherit;color:inherit;filter:drop-shadow(2px 3px 0 var(--shadow))}
 .mini .mc{position:absolute;left:0;top:0;width:286px;aspect-ratio:63/88;transform-origin:0 0;transform:scale(var(--s,.36));pointer-events:none}
 .mini .art .burst{animation:none}
 .mini .new{position:absolute;top:-4px;right:-4px;z-index:2;font-family:var(--font-display);font-size:11px;background:var(--gold-hi);color:var(--ink);border:2px solid var(--ink);padding:0 4px;animation:blink 1s steps(2) infinite}
