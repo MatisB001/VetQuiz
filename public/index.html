@@ -170,12 +170,12 @@ h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1;text-wrap:bala
 .pb-gem.on{background:var(--c);box-shadow:0 0 0 1px var(--ink),0 0 8px var(--c)}
 .pb-gem.pop{animation:gempop .6s cubic-bezier(.2,1.6,.4,1)}
 @keyframes gempop{40%{transform:rotate(45deg) scale(1.9)}}
-.pb-lbls{position:relative;height:26px;font-size:9.5px;line-height:1.2}
+.pb-lbls{position:relative;height:26px;font-size:9.5px;line-height:1.2;container-type:inline-size}
 .pb-lbls span{position:absolute;top:0;transform:translateX(-50%);text-align:center;white-space:nowrap;color:var(--muted)}
 .pb-lbls span:first-child{transform:none;text-align:left}
 .pb-lbls span:last-child{transform:translateX(-100%);text-align:right}
 .pb-lbls span.on{color:var(--paper)}
-.pb-lbls b{display:block;font-family:var(--font-display);font-size:11.5px;font-weight:600}
+.pb-lbls b{display:block;font-family:var(--font-display);font-size:11.5px;font-size:min(11.5px,3.6cqi);font-weight:600}
 #pbarR .pb-now{display:none}
 .earned .pbar{padding:8px 10px 4px}
 .pbar.unlock .pb-now{animation:unlock .32s steps(1) 6}
