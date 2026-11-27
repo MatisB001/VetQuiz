@@ -8,12 +8,25 @@
   const addC = (q, s) => { try { const L = getC(); if (!L.some((x) => x.q === q && x.s === s)) { L.push({ q, s, d: todayKey }); localStorage.setItem(CKEY, JSON.stringify(L.slice(-300))); } } catch (e) {} };
   const ids = new Set(QBANK.map((q) => q.id));
 
-  /* accueil : une ligne discrète en bas à la place de la note de la maquette ; pas d'onglet Joueurs (démonstration
-     sans serveur : ni compte ni amis dans la bêta) */
+  /* accueil : une ligne discrète en bas à la place de la note de la maquette */
   const note = document.querySelector("#v-home > p.note");
   if (note) note.innerHTML = "<b>Bêta</b> : questions d'essai, réponses pas encore relues. Refusé à tort ? Signalez-le après la question.";
-  const tab = document.querySelector('.tabs button[data-v="players"]');
-  if (tab) tab.hidden = true;
+
+  /* onglet Joueurs : aperçu seulement (choix de Seb, 27/11) ; ni compte ni amis dans la bêta, champs et envois désactivés.
+     On peut changer de rubrique (Profil, Amis, Ligues, Écoles) pour voir à quoi elles ressemblent. */
+  const pv = $("v-players");
+  if (pv) {
+    const info = document.createElement("p");
+    info.className = "note";
+    info.innerHTML = "<b>Aperçu</b> : comptes, amis et ligues arriveront au lancement. Rien ne peut être saisi dans la bêta.";
+    pv.prepend(info);
+    const NAV = ["login", "back", "openL", "goProfil", "cancelCode"].map((a) => `:not([data-act="${a}"])`).join("");
+    const lock = () => pv.querySelectorAll(`#plBody input, #plBody select, #plBody textarea, #plBody form button, #plBody button[data-act]${NAV}`)
+      .forEach((el) => { el.disabled = true; });
+    pv.addEventListener("submit", (e) => { e.preventDefault(); e.stopPropagation(); }, true);
+    new MutationObserver(lock).observe(pv, { childList: true, subtree: true });
+    lock();
+  }
 
   /* après chaque question : contestation des essais refusés, source de la question */
   const submit0 = submit;
@@ -71,6 +84,6 @@
   };
 
   const st = document.createElement("style");
-  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}";
+  st.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.beta-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}";
   document.head.appendChild(st);
 })();
