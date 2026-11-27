@@ -61,13 +61,18 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 - Décision de Seb : les niveaux restent fixés par expert (pas de recalcul par fréquence). Après une réponse acceptée, le site affiche la part des joueurs du jour qui ont donné la même réponse (« 25 % des joueurs du jour ont donné cette réponse (3 sur 12) »), comme Zebra.
 - `quiz_share(uid, qi)` (migration `20261127020000_part_reponses.sql`, rejouable) compte sur les parties du jour (`quiz_runs`) et ne renvoie que deux nombres et un pourcentage. Réservée au serveur. La fonction Edge l'appelle après `quiz_answer` ; si elle manque ou échoue, la réponse passe quand même, sans pourcentage.
 
+## Nouveaux dessins des chats et retrait de 4 chats (27/11/2026)
+- Seb a fourni de nouvelles planches. Les dessins sont recopiés tels quels (seul le liseré mêlé au fond magenta est rendu transparent), puis choisis par Seb ; voir `cartes/dessins-v3` dans le dossier du projet et `assemble.py` de la série de cartes.
+- Ils pèsent 100 à 240 Kio chacun : ils ne sont plus dans la page mais dans `public/dessins/<id>.png`, chargés quand une carte s'affiche ; le classeur charge une vignette (`public/dessins/mini/<id>.png`, 120 px au plus, réduction Lanczos). `IMG[id]` donne le sprite ou la vignette, `IMGHD[id]` le grand dessin.
+- Retirés « pour le moment » (pas de nouveau dessin) : Angora turc, Mau égyptien, Tonkinois, Van turc. Migration `20261127030000_retrait_chats.sql` (rejouable, à passer avant le lancement), puis `seed_cards.sql` : 252 cartes, rareté des chats recalculée sur 38 (le Korat passe de rare à commune).
+
 ## Mise en service (dans l'ordre)
 
 1. SQL Editor : `supabase/migrations/20261126000000_players.sql`, puis `supabase/seed.sql`.
 2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
-5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
+5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs), puis `20261127030000_retrait_chats.sql` et `supabase/seed_cards.sql` (dessins des chats) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
 6. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
 7. Cloudflare Pages : projet relié au dépôt, sans commande de build, dossier de sortie `public`.
 
@@ -82,7 +87,7 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 - Relancer le build quand la maquette ou les cartes changent, puis pousser `public/`.
 - Test dans Chromium contre un faux Supabase (vraie base locale, vraie fonction de correction) : `web/tests/e2e.test.mjs`, lancé par `scripts/test-db.sh` si les fichiers de la maquette sont présents.
 
-Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 38/38 ok » une fois `20261127020000_part_reponses.sql` passée).
+Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 40/40 ok » une fois `20261127030000_retrait_chats.sql` et `seed_cards.sql` passés).
 
 ## Droits RGPD
 

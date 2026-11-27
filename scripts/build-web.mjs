@@ -2,7 +2,7 @@
 // partagé de la maquette et de la série de cartes, sans aucune question ni réponse dans la page.
 // Usage : node scripts/build-web.mjs <maquette/src> <cartes/build> [public]
 // Les fichiers de la maquette vivent dans le dossier partagé du projet ; relancer ce script quand ils changent.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, cpSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 const [src, cards, out = new URL("../public/", import.meta.url).pathname] = process.argv.slice(2);
@@ -39,6 +39,9 @@ if (ext.length) throw new Error("ressources externes : " + ext.join(", "));
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, "index.html"), t);
 copyFileSync(join(root, "web/vendor/supabase.js"), join(out, "supabase.js"));
+// Grands dessins des cartes (planches de Seb, 27/11/2026) : fichiers séparés, chargés seulement quand une carte s'affiche.
+rmSync(join(out, "dessins"), { recursive: true, force: true });
+if (existsSync(join(cards, "dessins"))) cpSync(join(cards, "dessins"), join(out, "dessins"), { recursive: true });
 writeFileSync(join(out, "_headers"), `/*
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ${config.url}; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
   Referrer-Policy: no-referrer

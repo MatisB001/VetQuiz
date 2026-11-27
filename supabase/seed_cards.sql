@@ -1,5 +1,5 @@
 -- Cartes de la série 1 (identifiant, rareté, espèce). Fichier produit par scripts/gen-cards-sql.mjs : ne pas modifier à la main.
--- 256 cartes : chiens 107/64/32/11, chats 21/13/6/2 (commune/rare/épique/légendaire).
+-- 252 cartes : chiens 107/64/32/11, chats 19/11/6/2 (commune/rare/épique/légendaire).
 -- Une carte retirée de la série n'est pas supprimée ici : des joueurs peuvent déjà l'avoir.
 insert into public.cards (id, tier, species) values
   ('affen', 'c', 'dog'),
@@ -219,7 +219,6 @@ insert into public.cards (id, tier, species) values
   ('abyssinian', 'r', 'cat'),
   ('amcurl', 'c', 'cat'),
   ('amshorthair', 'c', 'cat'),
-  ('angora', 'c', 'cat'),
   ('balinese', 'c', 'cat'),
   ('bengal', 'e', 'cat'),
   ('russianblue', 'r', 'cat'),
@@ -234,11 +233,10 @@ insert into public.cards (id, tier, species) values
   ('devon', 'r', 'cat'),
   ('exotic', 'r', 'cat'),
   ('havana', 'c', 'cat'),
-  ('korat', 'r', 'cat'),
+  ('korat', 'c', 'cat'),
   ('lykoi', 'c', 'cat'),
   ('mainecoon', 'l', 'cat'),
   ('manx', 'c', 'cat'),
-  ('egyptianmau', 'c', 'cat'),
   ('munchkin', 'c', 'cat'),
   ('nebelung', 'c', 'cat'),
   ('ocicat', 'r', 'cat'),
@@ -255,7 +253,5 @@ insert into public.cards (id, tier, species) values
   ('snowshoe', 'c', 'cat'),
   ('sokoke', 'c', 'cat'),
   ('somali', 'r', 'cat'),
-  ('sphynx', 'r', 'cat'),
-  ('tonkinese', 'r', 'cat'),
-  ('turkishvan', 'c', 'cat')
+  ('sphynx', 'r', 'cat')
 on conflict (id) do update set tier = excluded.tier, species = excluded.species;

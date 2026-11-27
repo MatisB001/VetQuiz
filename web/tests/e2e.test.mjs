@@ -2,7 +2,7 @@
 // l'authentification est imitée, mais la fonction de correction (core.js) et la base de test sont les vraies.
 // Lancé par scripts/test-db.sh quand les fichiers de la maquette sont disponibles (variable VQ_SITE).
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import assert from "node:assert/strict";
@@ -63,12 +63,14 @@ const shot = (name) => process.env.VQ_SHOTS ? page.screenshot({ path: join(proce
 const ok = (cond, what) => { assert.ok(cond, what); n++; console.log("  ok : " + what); };
 const browser = await chromium.launch();
 const ctx = await browser.newContext();
-const foreign = [];
+const foreign = [], missing = [], served = [];
 await ctx.route("**/*", async (route) => {
   const u = new URL(route.request().url());
   if (u.origin === WEB) {
     const f = u.pathname === "/" ? "index.html" : u.pathname.slice(1);
-    return route.fulfill({ status: 200, contentType: f.endsWith(".js") ? "text/javascript" : "text/html"   /* sans charset : la page doit le déclarer elle-même */, body: readFileSync(join(SITE, f)) });
+    if (!existsSync(join(SITE, f))) { missing.push(f); return route.fulfill({ status: 404, body: "" }); }
+    if (f.endsWith(".png")) served.push(f);
+    return route.fulfill({ status: 200, contentType: f.endsWith(".js") ? "text/javascript" : f.endsWith(".png") ? "image/png" : "text/html"   /* sans charset : la page doit le déclarer elle-même */, body: readFileSync(join(SITE, f)) });
   }
   if (u.origin === SB) return fakeSupabase(route);
   if (u.protocol === "data:" || u.protocol === "blob:") return route.continue();
@@ -167,6 +169,17 @@ await page.waitForFunction(() => document.querySelectorAll("#rvList .panel").len
 await shot("6-hier");
 ok(/Echo/.test(await page.locator("#rvList").textContent()) && (await page.locator("#rvList mark").first().textContent()) === "Bravo", "réponses d'hier : liste complète et réponse du joueur");
 
+// Nouveaux dessins (27/11/2026) : la carte charge le grand dessin à part, le classeur la vignette ; le dessin remplit la carte.
+const art = await page.evaluate(async () => {
+  const cv = document.createElement("canvas"); cv.width = 500; cv.height = 400; await drawSprite(cv, "siamese", false, true);
+  const d = cv.getContext("2d").getImageData(0, 0, 500, 400).data; let top = 400, bot = 0;
+  for (let y = 0; y < 400; y++) for (let x = 0; x < 500; x++) if (d[(y * 500 + x) * 4 + 3] > 0) { top = Math.min(top, y); bot = Math.max(bot, y); }
+  const mi = document.createElement("canvas"); mi.width = mi.height = 160; await drawSprite(mi, "siamese", true);
+  return { h: bot - top + 1, cats: CARDS.filter((c) => c.sp === "cat").length, hd: Object.keys(IMGHD).length, gone: ["angora", "egyptianmau", "tonkinese", "turkishvan"].filter((i) => CARDS.some((c) => c.id === i)) };
+});
+ok(art.h >= 300 && art.h <= 340 && served.includes("dessins/siamese.png") && served.includes("dessins/mini/siamese.png"), `grand dessin chargé à part, à taille réelle s'il tient dans la carte (${art.h} px de haut)`);
+ok(art.cats === 38 && art.hd === 38 && art.gone.length === 0, "38 chats, tous avec un nouveau dessin ; les 4 chats retirés n'apparaissent plus");
+ok(missing.length === 0, "aucun fichier manquant" + (missing.length ? " : " + missing.join(", ") : ""));
 ok(foreign.length === 0, "aucune requête vers un autre site" + (foreign.length ? " : " + foreign.join(", ") : ""));
 ok(errors.length === 0, "aucune erreur JavaScript" + (errors.length ? " : " + errors.join(" | ") : ""));
 await browser.close();
