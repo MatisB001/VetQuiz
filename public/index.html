@@ -80,6 +80,7 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
 .legal th,.legal td{border:2px solid var(--ink);padding:5px 6px;text-align:left;vertical-align:top}
 .legal th{background:var(--paper-2)}
 .legal .upd{color:var(--muted-ink);font-size:12px;margin-top:14px}
+.legal .callout{border:2px solid var(--ink);background:var(--paper-2);padding:2px 10px;margin:10px 0}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
 /* ---------- Accueil ---------- */
@@ -641,6 +642,11 @@ body.day-opened .next{display:none}
       <p id="baseInfo"></p>
       <ul class="srcs" id="srcList" style="margin-top:8px"></ul>
     </div>
+    <div class="panel" id="dataPanel">
+      <h2>Vos données</h2>
+      <p>Sans compte, votre partie, vos scores et vos cartes sont rattachés à un identifiant aléatoire gardé dans ce navigateur. Ce bouton les efface définitivement, sur nos serveurs et sur cet appareil : vous repartirez de zéro. Voir la <a href="#confidentialite" data-legal="confidentialite">politique de confidentialité</a>.</p>
+      <div class="row" style="margin-top:10px"><button class="btn ghost" id="eraseData">Effacer mes données</button><span id="eraseMsg" role="status" style="font-size:12px"></span></div>
+    </div>
   </section>
 
   <!-- ===== Pages juridiques (texte copié de juridique/*.md par scripts/sync-legal.mjs ; ne pas modifier ici) ===== -->
@@ -666,10 +672,11 @@ body.day-opened .next{display:none}
 <h2>Politique de confidentialité de vetquiz.net</h2>
 <h3>En bref</h3>
 <ul><li>Vous pouvez jouer <b>sans compte</b> et sans donner d'e-mail : un identifiant aléatoire, gardé dans votre navigateur, permet de sauvegarder votre partie sur nos serveurs.</li><li>Avec un compte, nous ne demandons qu'<b>un pseudo</b> (public) et <b>une adresse e-mail</b> (jamais affichée), plus votre école vétérinaire si vous le souhaitez.</li><li>Pas de publicité, pas de revente, pas de cookies de suivi, pas de bandeau cookies, car nous n'en utilisons aucun qui l'exige.</li><li>Pour ajuster la difficulté, nous utilisons des statistiques sur les réponses, sans lien avec votre identité.</li><li>Vous pouvez <b>télécharger ou supprimer</b> votre compte à tout moment depuis « Mon compte ».</li></ul>
+<div class="callout"><p>Au lancement, le site fonctionne sans compte (parties invitées). Les comptes, amis, ligues et le signalement ouvriront prochainement : les lignes qui les concernent s'appliqueront à partir de leur ouverture.</p></div>
 <h3>1. Qui est responsable de vos données ?</h3>
 <p>Le responsable de traitement est l'éditeur du site, un particulier agissant à titre non professionnel (voir les mentions légales), joignable à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.<br>Contact pour toute question ou demande : <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.</p>
 <h3>2. Quelles données, pourquoi, sur quelle base, combien de temps ?</h3>
-<div class="tablewrap"><table><thead><tr><th>Usage</th><th>Données</th><th>Base légale (RGPD)</th><th>Durée de conservation</th></tr></thead><tbody><tr><td>Jouer sans compte</td><td>Identifiant aléatoire de session (sans e-mail), scores, cartes, série, parties jouées</td><td>Exécution du service demandé, art. 6.1.b</td><td><b>Suppression automatique après 90 jours sans partie.</b> Si vous ajoutez un e-mail, la session devient un compte</td></tr><tr><td>Créer et gérer votre compte</td><td>Pseudo, e-mail, école (facultative), date de création, date de dernière connexion</td><td>Exécution du contrat (CGU), art. 6.1.b</td><td>Durée du compte. <b>Suppression automatique après 2 ans sans connexion</b>, avec un e-mail d'avertissement 30 jours avant</td></tr><tr><td>Vous connecter</td><td>E-mail, code de connexion à 6 chiffres à usage unique, jeton de session</td><td>Exécution du contrat, art. 6.1.b</td><td>Code : 10 minutes, 5 essais maximum ; session : jusqu'à la déconnexion ou l'effacement des données du navigateur (le jeton d'accès, valable 1 heure, est renouvelé automatiquement)</td></tr><tr><td>Sauvegarder votre progression</td><td>Scores du jour, cartes obtenues, série ; pour chaque jour joué : les questions tirées, le niveau obtenu et la réponse acceptée correspondante (le texte que vous tapez n'est pas conservé)</td><td>Exécution du contrat, art. 6.1.b</td><td>Durée du compte (ou de la session sans compte)</td></tr><tr><td>Amis</td><td>Liste des amis (acceptés des deux côtés), demandes en attente</td><td>Exécution du contrat, art. 6.1.b</td><td>Jusqu'au retrait de l'ami ou la suppression d'un des comptes ; demandes non acceptées : 30 jours</td></tr><tr><td>Ligues et classements</td><td>Nom de ligue, membres (pseudos), classement hebdomadaire</td><td>Exécution du contrat, art. 6.1.b</td><td>Tant que la ligue existe et que vous en êtes membre</td></tr><tr><td>Améliorer la difficulté des questions</td><td>Compteurs par question et par réponse (réponse acceptée : son libellé officiel ; essai refusé : texte simplifié, sans accents ni ponctuation), avec le niveau et le nombre de fois où elle a été donnée. Ni identifiant, ni IP, ni date, ni ligne par joueur</td><td>Données anonymes : hors champ du RGPD (considérant 26), <b>à condition qu'aucun recoupement ne soit possible</b></td><td>Sans limite (données anonymes)</td></tr><tr><td>Modération et signalements</td><td>Contenu signalé, motif, décision, pseudo concerné</td><td>Obligation légale (art. 6.1.c, règlement (UE) 2022/2065, DSA) et intérêt légitime à assurer un espace sain (art. 6.1.f)</td><td><code>[À FOURNIR : ex. 1 an après la décision]</code></td></tr><tr><td>Sécurité du service</td><td>Journaux techniques (adresse IP, date, page demandée)</td><td>Intérêt légitime (art. 6.1.f) : prévenir les abus</td><td>1 an maximum (la CNIL recommande 6 mois à 1 an, délibération n° 2021-122)</td></tr><tr><td>Répondre à vos demandes</td><td>E-mail, contenu de la demande</td><td>Obligation légale (art. 12 à 22 RGPD)</td><td>1 an après la réponse</td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>Usage</th><th>Données</th><th>Base légale (RGPD)</th><th>Durée de conservation</th></tr></thead><tbody><tr><td>Jouer sans compte</td><td>Identifiant aléatoire de session (sans e-mail), scores, cartes, série, parties jouées</td><td>Exécution du service demandé, art. 6.1.b</td><td><b>Suppression automatique après 90 jours sans partie.</b> Si vous ajoutez un e-mail, la session devient un compte</td></tr><tr><td>Créer et gérer votre compte</td><td>Pseudo, e-mail, école (facultative), date de création, date de dernière connexion</td><td>Exécution du contrat (CGU), art. 6.1.b</td><td>Durée du compte. <b>Suppression automatique après 2 ans sans connexion</b>, avec un e-mail d'avertissement 30 jours avant</td></tr><tr><td>Vous connecter</td><td>E-mail, code de connexion à 6 chiffres à usage unique, jeton de session</td><td>Exécution du contrat, art. 6.1.b</td><td>Code : 10 minutes, 5 essais maximum ; session : jusqu'à la déconnexion ou l'effacement des données du navigateur (le jeton d'accès, valable 1 heure, est renouvelé automatiquement)</td></tr><tr><td>Sauvegarder votre progression</td><td>Scores du jour, cartes obtenues, série ; pour chaque jour joué : les questions tirées, le niveau obtenu et la réponse acceptée correspondante (le texte que vous tapez n'est pas conservé)</td><td>Exécution du contrat, art. 6.1.b</td><td>Durée du compte (ou de la session sans compte)</td></tr><tr><td>Amis</td><td>Liste des amis (acceptés des deux côtés), demandes en attente</td><td>Exécution du contrat, art. 6.1.b</td><td>Jusqu'au retrait de l'ami ou la suppression d'un des comptes ; demandes non acceptées : 30 jours</td></tr><tr><td>Ligues et classements</td><td>Nom de ligue, membres (pseudos), classement hebdomadaire</td><td>Exécution du contrat, art. 6.1.b</td><td>Tant que la ligue existe et que vous en êtes membre</td></tr><tr><td>Améliorer la difficulté des questions</td><td>Compteurs par question et par réponse (réponse acceptée : son libellé officiel ; essai refusé : texte simplifié, sans accents ni ponctuation), avec le niveau et le nombre de fois où elle a été donnée. Ni identifiant, ni IP, ni date, ni ligne par joueur</td><td>Données anonymes : hors champ du RGPD (considérant 26), <b>à condition qu'aucun recoupement ne soit possible</b></td><td>Sans limite (données anonymes)</td></tr><tr><td>Modération et signalements</td><td>Contenu signalé, motif, décision, pseudo concerné</td><td>Obligation légale (art. 6.1.c, règlement (UE) 2022/2065, DSA) et intérêt légitime à assurer un espace sain (art. 6.1.f)</td><td>1 an après la décision</td></tr><tr><td>Sécurité du service</td><td>Journaux techniques (adresse IP, date, page demandée)</td><td>Intérêt légitime (art. 6.1.f) : prévenir les abus</td><td>1 an maximum (la CNIL recommande 6 mois à 1 an, délibération n° 2021-122)</td></tr><tr><td>Répondre à vos demandes</td><td>E-mail, contenu de la demande</td><td>Obligation légale (art. 12 à 22 RGPD)</td><td>1 an après la réponse</td></tr></tbody></table></div>
 <p>Nous ne collectons <b>ni votre nom réel, ni votre date de naissance, ni de mot de passe</b>. Aucune donnée sensible (art. 9 RGPD) n'est demandée. Aucune décision automatisée produisant des effets juridiques (art. 22 RGPD) n'est prise.</p>
 <h3>3. Qui voit vos données ?</h3>
 <ul><li><b>Les autres joueurs</b> voient votre <b>pseudo</b>, votre école si vous l'avez indiquée, vos scores dans les classements de vos ligues et de vos amis. Ils ne voient <b>jamais</b> votre e-mail.</li><li><b>Nos prestataires techniques</b>, qui agissent uniquement sur nos instructions (sous-traitants, art. 28 RGPD) :<ul><li>hébergement du site : Cloudflare Pages (Cloudflare, Inc., États-Unis ; transferts encadrés par le Data Privacy Framework UE–États-Unis et, à défaut, par les clauses contractuelles types)</li><li>base de données et comptes : Supabase (contractant : Supabase Pte. Ltd, Singapour), données stockées dans la région de Paris (France)</li><li>réception des messages envoyés à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a> : Cloudflare Email Routing (Cloudflare, Inc.), qui les transfère à l'éditeur</li><li>envoi des codes de connexion : Scaleway SAS (Paris), service Transactional Email, données traitées en France</li></ul></li><li><b>Les autorités</b>, uniquement sur réquisition légale.</li></ul>
@@ -1264,6 +1271,15 @@ $("copyMissed").onclick=()=>{const L=getMissed();const txt=L.map(m=>`${m.q}\t${m
 let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("clearMissed").textContent="Confirmer : vider la liste";setTimeout(()=>{clearArm=false;$("clearMissed").textContent="Vider la liste";},4000);return;}
   clearArm=false;try{localStorage.removeItem(MISSKEY);}catch(e){}$("clearMissed").textContent="Vider la liste";$("missedMsg").textContent="";renderMissed();};
 
+/* « Effacer mes données » : deux clics ; eraseServer (site en ligne, web/live.js) efface d'abord la session côté serveur */
+let eraseServer=null,eraseArm=false;
+$("eraseData").onclick=async()=>{const b=$("eraseData");
+  if(!eraseArm){eraseArm=true;b.textContent="Confirmer : tout effacer";setTimeout(()=>{if(eraseArm){eraseArm=false;b.textContent="Effacer mes données";}},5000);return;}
+  eraseArm=false;b.disabled=true;$("eraseMsg").textContent="Effacement…";
+  try{if(eraseServer)await eraseServer();}catch(e){b.disabled=false;b.textContent="Effacer mes données";$("eraseMsg").textContent="Effacement impossible : "+(e&&e.message?e.message:e)+". Réessayez ou écrivez à contact@vetquiz.net.";return;}
+  try{["vq-auth","vq-site-2","vq-missed","vq-sound"].forEach(k=>localStorage.removeItem(k));}catch(e){}
+  location.replace(location.pathname);};
+
 
 /* ===== Site en ligne : partie corrigée par le serveur (Supabase) =====
    Injecté par scripts/build-web.mjs au marqueur LIVE_JS du gabarit de la maquette. Remplace les fonctions de jeu
@@ -1308,6 +1324,16 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
     return data;
   }
   window.VQ.api = api; window.VQ.session = session;
+
+  /* « Effacer mes données » (Règles) : supprime la session (anonyme ou compte) et, par cascade, parties, scores et cartes.
+     Sans session sur cet appareil, il n'y a rien sur le serveur : on efface seulement le navigateur. */
+  eraseServer = async () => {
+    const s = await session(false);
+    if (!s) return;
+    const { error } = await sb.rpc("delete_my_account");
+    if (error) throw error;
+    await sb.auth.signOut({ scope: "local" }).catch(() => {});
+  };
 
   /* ---------- État du jour, reçu du serveur ---------- */
   const blankQ = () => ({ id: null, dom: "", q: "", cat: "", ref: "", ans: [] });

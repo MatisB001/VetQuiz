@@ -42,6 +42,16 @@
   }
   window.VQ.api = api; window.VQ.session = session;
 
+  /* « Effacer mes données » (Règles) : supprime la session (anonyme ou compte) et, par cascade, parties, scores et cartes.
+     Sans session sur cet appareil, il n'y a rien sur le serveur : on efface seulement le navigateur. */
+  eraseServer = async () => {
+    const s = await session(false);
+    if (!s) return;
+    const { error } = await sb.rpc("delete_my_account");
+    if (error) throw error;
+    await sb.auth.signOut({ scope: "local" }).catch(() => {});
+  };
+
   /* ---------- État du jour, reçu du serveur ---------- */
   const blankQ = () => ({ id: null, dom: "", q: "", cat: "", ref: "", ans: [] });
   for (let i = 0; i < 7; i++) Q.push(blankQ());

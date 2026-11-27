@@ -37,8 +37,6 @@ const FIX = {
   cgu: [
     // aucun outil de modération automatique dans le code (table reports, traitée à la main)
     [" `[à confirmer]`", ""],
-    // noms des niveaux choisis par Seb le 27/11/2026 (LV dans site.tpl.html)
-    ["(« Étudiant », « Carte verte », « Généraliste », « Spécialiste », « Professeur »)", "(« Étudiant », « Carte verte », « Généraliste », « Résident », « Spécialiste »)"],
   ],
 };
 
@@ -54,7 +52,8 @@ const inline = (s) => esc(s)
 function toHTML(md) {
   const out = [], L = md.split("\n");
   let para = [], list = [], table = [];
-  const flushPara = () => { if (para.length) out.push(`<p>${para.map(inline).join("<br>")}</p>`); para = []; };
+  let quote = false, skipQuote = false;
+  const flushPara = () => { if (para.length) out.push(quote ? `<div class="callout"><p>${para.map(inline).join("<br>")}</p></div>` : `<p>${para.map(inline).join("<br>")}</p>`); para = []; quote = false; };
   const flushList = () => {
     if (!list.length) return;
     let h = "<ul>", depth = 0;
@@ -75,15 +74,16 @@ function toHTML(md) {
   const flush = () => { flushPara(); flushList(); flushTable(); };
   for (const raw of L) {
     const line = raw.replace(/\s+$/, "");
-    if (!line.trim()) { flush(); continue; }
-    if (line.startsWith(">")) { flush(); continue; }                                    // notes internes
+    if (!line.trim()) { flush(); skipQuote = false; continue; }
+    if (/^>\s*Note interne/.test(line)) { flush(); skipQuote = true; continue; }       // notes internes
+    if (line.startsWith(">")) { if (skipQuote) continue; flushList(); flushTable(); if (!quote) flushPara(); quote = true; para.push(line.replace(/^>\s?/, "")); continue; }
     if (/^\*Projet/.test(line)) { flush(); continue; }                                  // en-têtes « Projet… »
     let m;
     if ((m = line.match(/^(#{1,3}) (.*)$/))) { flush(); out.push(m[1].length === 1 ? `<h2>${inline(m[2])}</h2>` : `<h3>${inline(m[2])}</h3>`); continue; }
     if (line.startsWith("|")) { flushPara(); flushList(); table.push(line); continue; }
     if ((m = line.match(/^(\s*)- (.*)$/))) { flushPara(); flushTable(); list.push([m[1].length >= 2 ? 1 : 0, m[2]]); continue; }
     if (/^\*Dernière mise à jour/.test(line)) { flush(); out.push(`<p class="upd">${inline(line.replace(/^\*|\*$/g, ""))}</p>`); continue; }
-    flushList(); flushTable(); para.push(line);
+    skipQuote = false; if (quote) flushPara(); flushList(); flushTable(); para.push(line);
   }
   flush();
   return out.join("\n");

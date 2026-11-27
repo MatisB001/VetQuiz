@@ -44,6 +44,13 @@ async function fakeSupabase(route) {
     try { return json(200, await handle(rpc, uid, JSON.parse(req.postData()))); }
     catch (e) { return json(e instanceof QuizError ? e.status : 500, { error: e.message }); }
   }
+  if (path === "/auth/v1/logout") return route.fulfill({ status: 204, headers: { "access-control-allow-origin": "*" } });
+  const fn = /^\/rest\/v1\/rpc\/(\w+)$/.exec(path);
+  if (fn) {   // fonction sans argument, avec les droits du joueur, comme PostgREST
+    const claims = JSON.stringify({ sub: uid, role: "authenticated", is_anonymous: true }).replace(/'/g, "''");
+    try { psql(`select public.${fn[1]}()`, [`set request.jwt.claim.sub = '${uid || ""}'`, `set request.jwt.claims = '${claims}'`, `set role ${uid ? "authenticated" : "anon"}`]); return json(200, null); }
+    catch (e) { return json(400, { message: String(e.stderr || e) }); }
+  }
   const m = /^\/rest\/v1\/(\w+)$/.exec(path);
   if (m) {   // lecture avec les droits du joueur (RLS), comme PostgREST
     const cols = (url.searchParams.get("select") || "*").split(",").map((c) => c.replace(/[^\w*]/g, "")).join(", ");
@@ -177,6 +184,14 @@ ok(await page.locator("#legal-cgu").isVisible() && !(await page.locator("#legal-
 const legalTxt = await page.locator("#v-legal").evaluate((el) => el.textContent);
 ok(!/Note interne|^Projet|Clause à faire|Professeur|sb-…-auth-token|à confirmer/m.test(legalTxt) && /vq-auth/.test(legalTxt), "pages juridiques : notes internes retirées, clés de stockage réelles");
 await page.click("#legalBack");
+
+// « Effacer mes données » (Règles) : la session anonyme et ses parties disparaissent du serveur, le navigateur est vidé.
+const uidBefore = await page.evaluate(async () => (await VQ.session(false))?.user?.id);
+await page.click('[data-v="rules"]');
+await page.click("#eraseData");
+await Promise.all([page.waitForEvent("load", { timeout: 15000 }), page.click("#eraseData")]);
+await page.waitForFunction(() => !localStorage.getItem("vq-auth") && !localStorage.getItem("vq-site-2"), null, { timeout: 10000 });
+ok(psql(`select count(*) from auth.users where id = '${uidBefore}'`).trim() === "0" && psql(`select count(*) from public.quiz_runs where user_id = '${uidBefore}'`).trim() === "0", "effacer mes données : session, parties et cartes supprimées du serveur, navigateur vidé");
 
 // Nouveaux dessins (27/11/2026) : la carte charge le grand dessin à part, le classeur la vignette ; le dessin remplit la carte.
 const art = await page.evaluate(async () => {

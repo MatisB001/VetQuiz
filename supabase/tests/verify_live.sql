@@ -3,7 +3,7 @@
 -- et dont le message donne le résultat (« VÉRIFICATION : 22/22 ok » ou la liste des échecs).
 do $$
 declare
-  u1 uuid := gen_random_uuid(); r text[] := '{}'; total int := 0; n bigint; j jsonb; t text;
+  u1 uuid := gen_random_uuid(); u2 uuid := gen_random_uuid(); r text[] := '{}'; total int := 0; n bigint; j jsonb; t text;
 begin
   insert into auth.users (id, email) values (u1, 'verification-' || left(u1::text, 8) || '@exemple.invalid');
 
@@ -99,6 +99,32 @@ begin
   total := total + 1;
   begin if public.quiz_share(u1, 0) is not null then r := r || 'part des joueurs : réponse inattendue'::text; end if;
   exception when others then r := r || ('part des joueurs (migration 20261127020000_part_reponses.sql) : ' || sqlerrm); end;
+
+  -- Invité : bouton « Effacer mes données » (Règles) = delete_my_account() avec une session anonyme ;
+  -- la cascade doit emporter la session, la partie et les cartes.
+  reset role;
+  total := total + 1;
+  begin
+    insert into auth.users (id, is_anonymous) values (u2, true);
+    perform public.quiz_state(u2);
+    insert into public.cards_owned (user_id, card_id, obtained_on) values (u2, 'gwp', public.paris_today());
+    perform set_config('request.jwt.claim.sub', u2::text, true);
+    perform set_config('request.jwt.claims', json_build_object('sub', u2, 'role', 'authenticated', 'is_anonymous', true)::text, true);
+    set local role authenticated;
+    perform public.delete_my_account();
+    reset role;
+    if exists (select 1 from auth.users where id = u2) or exists (select 1 from public.quiz_runs where user_id = u2)
+       or exists (select 1 from public.cards_owned where user_id = u2) then r := r || 'effacement des données d''un invité incomplet'::text; end if;
+  exception when others then r := r || ('effacement des données d''un invité : ' || sqlerrm); end;
+  reset role;
+
+  -- Purge nocturne planifiée (migration 20261128000000_purge_planifiee.sql), là où pg_cron existe (Supabase).
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    total := total + 1;
+    begin if not exists (select 1 from cron.job where jobname = 'vq-purge-sessions-anonymes' and active)
+          then r := r || 'purge des sessions anonymes non planifiée (migration 20261128000000_purge_planifiee.sql)'::text; end if;
+    exception when others then r := r || ('pg_cron non activé (Database > Extensions, puis migration 20261128000000_purge_planifiee.sql) : ' || sqlerrm); end;
+  end if;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
     case when cardinality(r) = 0 then total || '/' || total || ' ok'

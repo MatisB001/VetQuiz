@@ -35,7 +35,7 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - Chaque essai est corrigé par le même moteur que la maquette (`matcher.js`, copié par `scripts/sync-matcher.mjs`). Le premier essai accepté termine la question ; au plus 20 essais par question.
 - À la 7e question : score du jour, carte tirée sans doublon (seuils et probabilités de la maquette), fin de partie.
 - **Liste des réponses acceptées : le lendemain** (choix de Seb). Tout le monde a les mêmes 7 questions : les montrer le jour même permettrait de les récupérer avec un second compte invité avant de jouer. Réglage : `quiz_reveal()`.
-- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée choisie par Seb le 26/11/2026 ; à planifier).
+- Invités : session anonyme Supabase, qui devient un compte quand on y lie un e-mail. Sessions anonymes sans partie depuis 90 jours supprimées par `purge_anonymous_sessions()` (durée choisie par Seb le 26/11/2026), chaque nuit à 02 h 30 GMT par pg_cron (`20261128000000_purge_planifiee.sql`). Bouton « Effacer mes données » dans Règles : `delete_my_account()` avec la session de l'invité (cascade : partie, scores, cartes), puis vidage du stockage local.
 - Statistiques des réponses : compteurs sans identifiant ni date (`answer_stats`), à la place d'un journal daté qu'on pouvait recouper avec les parties (avis du fil RGPD). Un essai refusé contenant « @ » ou au moins 8 chiffres n'est pas compté ; pour l'analyse, la vue `answer_stats_review` ne montre un essai refusé qu'à partir de 5 occurrences, ou s'il a été signalé.
 - Rotation des questions : ordre de `questions.json`, 7 par jour depuis le 26/11/2026, comme la maquette. Une question retirée garde une position négative.
 - **Mêmes 7 questions pour tous chaque jour** (choix de Seb) : la série est enregistrée au premier appel du jour (`quiz_days`) et ne change plus, même si l'on ajoute des questions dans la journée.
@@ -74,7 +74,7 @@ Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
 2. SQL Editor : `supabase/migrations/20261126010000_quiz.sql`, puis `supabase/seed_cards.sql`, puis `supabase/migrations/20261126020000_inscription.sql`.
 3. SQL Editor : les questions, produites par `node scripts/gen-questions-sql.mjs questions.json synonyms.json sortie.sql`. **Ce fichier contient les réponses : jamais dans le dépôt.** À relancer quand la base de questions change.
 4. Fonction Edge : `supabase functions deploy quiz` (CLI), ou un seul fichier produit par `node scripts/bundle-quiz.mjs quiz.ts` à coller dans Edge Functions > Deploy a new function > Via Editor. Secret facultatif `QUIZ_ORIGINS` : adresse(s) du site.
-5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs), puis `20261127030000_retrait_chats.sql`, `20261127040000_retrait_chiens.sql` et `supabase/seed_cards.sql` (dessins des chats) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
+5. SQL Editor : `supabase/migrations/20261126030000_themes.sql` (thèmes du jour à l'accueil), puis `20261126040000_jour_fige.sql` (série du jour figée), puis `20261127010000_contestations.sql` (signalements et liste de revue), puis `20261127020000_part_reponses.sql` (part des joueurs), puis `20261127030000_retrait_chats.sql`, `20261127040000_retrait_chiens.sql` et `supabase/seed_cards.sql` (dessins des chats), puis `20261128000000_purge_planifiee.sql` (purge nocturne des invités ; si l'extension ne s'active pas, l'activer dans Database > Extensions > pg_cron et relancer) ; tous rejouables (`test-db.sh` les rejoue une 2e fois).
 6. Authentication : activer les connexions anonymes (limite Supabase : 30 par heure et par adresse IP, réglable).
 7. Cloudflare Pages : projet relié au dépôt, sans commande de build, dossier de sortie `public`.
 
@@ -91,7 +91,7 @@ Pages juridiques (Mentions légales, Confidentialité, CGU, pied de page de tout
 - Relancer le build quand la maquette ou les cartes changent, puis pousser `public/`.
 - Test dans Chromium contre un faux Supabase (vraie base locale, vraie fonction de correction) : `web/tests/e2e.test.mjs`, lancé par `scripts/test-db.sh` si les fichiers de la maquette sont présents.
 
-Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 40/40 ok » une fois `20261127030000_retrait_chats.sql` et `seed_cards.sql` passés).
+Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à installer). Sur le vrai projet : coller `supabase/tests/verify_live.sql` dans le SQL Editor ; il annule tout ce qu'il fait et affiche le résultat dans un message d'erreur volontaire (« VÉRIFICATION … : 42/42 ok » sur Supabase une fois toutes les migrations passées, dont la purge planifiée ; 41/41 en local, sans pg_cron).
 
 ## Droits RGPD
 
@@ -102,5 +102,5 @@ Tests : `scripts/test-db.sh` (PostgreSQL 16 et Node 22, sans dépendance à inst
 ## Reste à faire
 
 1. Comptes sur le site : connexion par code e-mail, profil, amis, ligues, écoles (la partie du jour en invité et la liste des réponses de la veille sont faites).
-2. Planifier `purge_inactive_accounts()` et `purge_anonymous_sessions()`.
+2. Planifier `purge_inactive_accounts()` et écrire l'e-mail d'avertissement un mois avant, à l'ouverture des comptes (`purge_anonymous_sessions()` est planifiée depuis le 27/11/2026).
 3. Configurer l'envoi d'e-mails dans Supabase : Scaleway Transactional Email (choix de Seb, 26/11/2026), une fois le nom de domaine acheté.
