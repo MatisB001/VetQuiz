@@ -336,22 +336,18 @@ h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.1;text-wrap:bala
 .chip i{width:10px;height:10px;background:var(--c,var(--muted));border:1px solid var(--ink)}
 .chip[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}
-.mini{position:relative;aspect-ratio:63/88;border:0;padding:3px;background:var(--ink);cursor:pointer;
-  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}
-.mini .mf{position:absolute;inset:3px;padding:5px;display:flex;flex-direction:column;gap:4px;background:linear-gradient(150deg,var(--t-hi) 0%,var(--t) 30%,var(--t-dk) 100%);
-  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
-.mini .ma{position:relative;flex:1;border:2px solid var(--ink);background:radial-gradient(circle at 50% 55%,var(--a1) 0,var(--a2) 45%,var(--a3) 100%)}
-.mini canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.art canvas.smooth,.mini canvas.smooth{image-rendering:auto}
-.mini .mn{background:var(--paper);color:var(--ink);border:2px solid var(--ink);font-family:var(--font-display);font-size:11px;line-height:1.1;padding:2px 3px;text-align:left;min-height:2.4em;display:flex;align-items:center}
-.mini .mno{position:absolute;top:8px;left:8px;font-size:9px;background:var(--ink);color:var(--paper);padding:0 3px;z-index:2}
-.mini .new{position:absolute;top:6px;right:6px;z-index:2;font-family:var(--font-display);font-size:11px;background:var(--gold-hi);color:var(--ink);border:2px solid var(--ink);padding:0 4px;animation:blink 1s steps(2) infinite}
-.mini.locked{cursor:default}
-.mini.locked .mf{background:var(--night-2)}
-.mini.locked .ma{background:var(--night);border-color:var(--line)}
-.mini.locked .mn{background:var(--night-2);color:var(--muted);border-color:var(--line)}
-.thumbs .mini .mn{font-size:10px}
-.mini .mn.long{font-size:9px}
+/* classeur : les vraies cartes en petit (demande de Seb, 27/11/2026) ; la carte garde sa taille de base (286 px) et est réduite d'un bloc (--s, calculé par fitMinis) */
+.mini{position:relative;display:block;width:100%;aspect-ratio:63/88;border:0;padding:0;background:none;cursor:pointer;filter:drop-shadow(2px 3px 0 var(--shadow))}
+.mini .mc{position:absolute;left:0;top:0;width:286px;aspect-ratio:63/88;transform-origin:0 0;transform:scale(var(--s,.36));pointer-events:none}
+.mini .art .burst{animation:none}
+.mini .new{position:absolute;top:-4px;right:-4px;z-index:2;font-family:var(--font-display);font-size:11px;background:var(--gold-hi);color:var(--ink);border:2px solid var(--ink);padding:0 4px;animation:blink 1s steps(2) infinite}
+.mini.locked{cursor:default;filter:none}
+.mini.locked .frame{background:linear-gradient(150deg,#59617f 0%,#3a4160 45%,#232a45 100%)}
+.mini.locked .gem{background:#59617f}
+.mini.locked .inner{background:var(--night);color:var(--muted);box-shadow:none}
+.mini.locked .plate,.mini.locked .foot{background:var(--night-2);color:var(--muted)}
+.mini.locked .art{background:var(--night-2)}
+.mini.locked .lk{flex:1;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:34px;color:var(--paper);opacity:.75}
 dialog{border:0;padding:0;background:transparent;color:var(--paper);max-width:min(340px,calc(100vw - 32px));width:100%;overflow:visible}
 dialog::backdrop{background:rgba(5,7,14,.82)}
 .dlg{display:flex;flex-direction:column;gap:12px;align-items:center}
@@ -789,7 +785,8 @@ const loadImg=(id,hd)=>{const src=(hd&&typeof IMGHD!=="undefined"&&IMGHD[id])||I
 async function drawSprite(cv,id,silhouette,hd){const im=await loadImg(id,hd);if(!im)return;const x=cv.getContext("2d");x.clearRect(0,0,cv.width,cv.height);
   /* petit sprite : agrandi d'un multiple entier de k (k = 2 : toile deux fois plus fine qu'avant, même rendu), sans lissage ;
      grand dessin : taille réelle s'il tient, sinon réduit pour tenir dans la carte, avec lissage */
-  const k=+cv.dataset.k||1,m=silhouette?.16:.08,f=Math.min(cv.width*(1-2*m)/im.width,cv.height*(1-2*m)/im.height),s=f>=k?k*Math.floor(f/k):Math.min(f,1);
+  /* data-z : toile réduite (classeur) qui reproduit le rendu de la grande carte à l'échelle z ; data-fit : dessin ajusté à la toile (vignettes) */
+  const z=+cv.dataset.z||1,k=+cv.dataset.k||1,m=silhouette?.16:.08,f=Math.min(cv.width/z*(1-2*m)/im.width,cv.height/z*(1-2*m)/im.height),s=(cv.dataset.fit?f:f>=k?k*Math.floor(f/k):Math.min(f,1))*z;
   x.imageSmoothingEnabled=s<1;if(s<1)x.imageSmoothingQuality="high";cv.classList.toggle("smooth",s<1);
   const w=Math.round(im.width*s),h=Math.round(im.height*s),ox=Math.round((cv.width-w)/2),oy=Math.round((cv.height-h)/2);x.drawImage(im,ox,oy,w,h);
   if(silhouette){x.globalCompositeOperation="source-in";x.fillStyle="#2f3a66";x.fillRect(0,0,cv.width,cv.height);x.globalCompositeOperation="source-over";}}
@@ -798,11 +795,11 @@ async function drawSprite(cv,id,silhouette,hd){const im=await loadImg(id,hd);if(
 const lifeShort=c=>c.life?(c.lifeK==="e0"?`${fr(c.life[0])} ans (à la naissance, R.-U.)`:`${fr(c.life[0])} ans (médiane, R.-U.)`):"";
 const shortRef=s=>s.replace(/ (?:[A-ZÀ-Ý]\.-?)+(?=[\s,&)]|$)/g,"");
 /* rubrique sans donnée publiée : non affichée (demande de Seb, 26/11/2026) */
-function frontHTML(c){const R=RAR[c.tier];const st=[["heart","Caractère",c.car],["hour","Espérance",lifeShort(c)],["ruler","Taille",c.gar],["palette","Robe",c.robe]].filter(x=>x[2]);
+function frontHTML(c,mini){const R=RAR[c.tier];const st=[["heart","Caractère",c.car],["hour","Espérance",lifeShort(c)],["ruler","Taille",c.gar],["palette","Robe",c.robe]].filter(x=>x[2]);
   const dense=((c.car||"")+(c.gar||"")+(c.robe||"")).length>95;
   return `<div class="frame${dense?" dense":""}"><i class="gem tl"></i><i class="gem tr"></i><i class="gem bl"></i><i class="gem br"></i><div class="inner">
   <div class="plate"><h2${c.name.length>20?' class="long"':""}>${c.name}</h2><canvas class="rgem" width="13" height="13" aria-hidden="true"></canvas></div>
-  <div class="art"><div class="burst"></div><div class="holo"></div><canvas class="spr" width="500" height="400" data-k="2" aria-label="${c.name} en pixel art, de profil"></canvas><div class="sheen"></div></div>
+  <div class="art"><div class="burst"></div><div class="holo"></div><canvas class="spr" ${mini?'width="240" height="192" data-k="2" data-z="0.48"':'width="500" height="400" data-k="2"'} aria-label="${c.name} en pixel art, de profil"></canvas><div class="sheen"></div></div>
   <div class="typeline"><span>${SPN[c.sp]}</span><b>${R.k.toUpperCase()} ${"★".repeat(R.i+1)}</b></div>
   <ul class="stats">${st.map(([i,k,v])=>`<li>${svgPix(ICONS[i],ICOL[i])}<b>${k}</b><span>${v}</span></li>`).join("")}</ul>
   <div class="foot"><span>VetQuiz · Série 1</span><span>N° ${pad(c.no)}/${pad(DOGS.length)}</span></div></div></div>`;}
@@ -840,11 +837,18 @@ function backHTML(c){const pred=predHTML(c);
   <p class="src">${dos?`Sources : ${dos}.`:""}${recto?` Recto : ${recto}.`:""}</p></div></div>`;}
 const MYSTERY=`<div class="frame"><div class="inner"><span class="sm">VetQuiz</span><span class="q">?</span><span class="lg">Sachet du jour</span><span class="sm">Série 1 · Chiens et chats</span></div></div>`;
 function hydrate(el,c){el.querySelectorAll(".rgem").forEach(cv=>drawGem(cv,c.tier));el.querySelectorAll("canvas.spr").forEach(cv=>drawSprite(cv,c.id,false,true));}
-function miniHTML(c,owned,isNew){/* aperçu : toutes les cartes visibles */if(!owned)return `<div class="mf"><div class="ma"><canvas width="192" height="192" data-k="2"></canvas></div><div class="mn">???</div></div><span class="mno">${pad(c.no)}</span>`;
-  return `<div class="mf"><div class="ma"><canvas width="192" height="192" data-k="2"></canvas></div><div class="mn${Math.max(...c.name.split(/[\s-]/).map(w=>w.length))>12?" long":""}">${c.name}</div></div><span class="mno">${pad(c.no)}</span>${isNew?'<span class="new">Nouveau</span>':""}`;}
+function miniHTML(c,owned,isNew){const G='<i class="gem tl"></i><i class="gem tr"></i><i class="gem bl"></i><i class="gem br"></i>';
+  if(!owned)return `<div class="mc" aria-hidden="true"><div class="face"><div class="frame">${G}<div class="inner"><div class="plate"><h2>???</h2></div><div class="art"><canvas class="spr" width="240" height="192" data-fit="1"></canvas></div><div class="lk">N° ${pad(c.no)}</div><div class="foot"><span>VetQuiz · Série 1</span><span>N° ${pad(c.no)}/${pad(DOGS.length)}</span></div></div></div></div></div>`;
+  return `<div class="mc" aria-hidden="true"><div class="face">${frontHTML(c,true)}</div></div>${isNew?'<span class="new">Nouveau</span>':""}`;}
 function makeMini(c,isNew){const owned=isOwned(c);const b=document.createElement(owned?"button":"div");b.className="mini"+(owned?"":" locked");
-  if(owned){paintVars(b,c);b.setAttribute("aria-label",`${c.name}, ${RAR[c.tier].k}, numéro ${c.no}`);b.onclick=()=>openCard(c);}else{b.setAttribute("role","img");b.setAttribute("aria-label",`Numéro ${c.no} : race pas encore obtenue`);}
-  b.innerHTML=miniHTML(c,owned,isNew);drawSprite(b.querySelector("canvas"),c.id,!owned);return b;}
+  if(owned){paintVars(b,c);b.style.setProperty("--holo",RAR[c.tier].holo);b.setAttribute("aria-label",`${c.name}, ${RAR[c.tier].k}, numéro ${c.no}`);b.onclick=()=>openCard(c);}else{b.setAttribute("role","img");b.setAttribute("aria-label",`Numéro ${c.no} : race pas encore obtenue`);}
+  b.innerHTML=miniHTML(c,owned,isNew);const cv=b.querySelector("canvas.spr");
+  /* carte obtenue : grand dessin, rendu identique à la carte ouverte ; aperçu et silhouettes : vignette légère */
+  if(owned){b.querySelectorAll(".rgem").forEach(g=>drawGem(g,c.tier));const real=S.owned.includes(c.id);if(!real)cv.dataset.fit="1";drawSprite(cv,c.id,false,real);}
+  else drawSprite(cv,c.id,true);return b;}
+/* échelle des cartes du classeur : largeur d'une case / 286 px, recalculée quand la page change de largeur */
+const fitMinis=box=>{const m=box&&box.querySelector(".mini");if(m&&m.clientWidth)box.style.setProperty("--s",(m.clientWidth/286).toFixed(4));};
+const miniRO=typeof ResizeObserver!=="undefined"?new ResizeObserver(es=>es.forEach(e=>fitMinis(e.target))):null;
 
 /* ---------- Navigation ---------- */
 let view="home";
@@ -887,7 +891,7 @@ function renderHome(){counts();const sc=score(),pk=packFor(sc);
   syncDay();
   $("ladder").innerHTML=PACKS.map(p=>`<div class="${S.done&&p===pk?"on":""}" style="--c:${RAR[p.k].t}"><b>${RAR[p.k].k}</b>dès ${p.min} pt${p.min>1?"s":""}</div>`).join("");
   const th=$("thumbs");th.innerHTML="";S.owned.slice(-4).reverse().forEach(id=>th.appendChild(makeMini(byId[id],false)));
-  for(let i=S.owned.length;i<4;i++){const c=DOGS.find(d=>!S.owned.includes(d.id)&&![...th.children].some(x=>x.dataset.id===d.id));if(!c)break;const m=makeMini(c,false);m.dataset.id=c.id;th.appendChild(m);}}
+  for(let i=S.owned.length;i<4;i++){const c=DOGS.find(d=>!S.owned.includes(d.id)&&![...th.children].some(x=>x.dataset.id===d.id));if(!c)break;const m=makeMini(c,false);m.dataset.id=c.id;th.appendChild(m);}fitMinis(th);}
 $("play").onclick=()=>{ac();startGame();};
 $("doneAnswers").onclick=()=>go("results");
 $("doneMain").onclick=()=>{if(S.opened){go("binder");}else openPackView();};
@@ -1116,7 +1120,8 @@ function renderBinder(){counts();$("bNote").textContent=`Série 1 : ${DOGS.lengt
   $("spchips").innerHTML=[["all","Chiens et chats"],["dog",`Chiens (${NDOG})`],["cat",`Chats (${NCAT})`]].map(([k,l])=>`<button class="chip" data-s="${k}" aria-pressed="${spf===k}">${l}</button>`).join("")
     +`<button class="chip" id="prevBtn" aria-pressed="${preview}">Aperçu : voir toutes les cartes</button>`;
   $("spchips").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{spf=b.dataset.s;renderBinder();});$("prevBtn").onclick=()=>{preview=!preview;renderBinder();};
-  const g=$("grid");g.innerHTML="";DOGS.filter(c=>(filter==="all"||c.tier===filter)&&(spf==="all"||c.sp===spf)).forEach(c=>g.appendChild(makeMini(c,S.opened&&c.id===S.packId)));}
+  const g=$("grid");g.innerHTML="";DOGS.filter(c=>(filter==="all"||c.tier===filter)&&(spf==="all"||c.sp===spf)).forEach(c=>g.appendChild(makeMini(c,S.opened&&c.id===S.packId)));fitMinis(g);}
+if(miniRO){miniRO.observe($("grid"));miniRO.observe($("thumbs"));}
 const dlg=$("dlg");let dCard=null;
 function openCard(c){dCard=c;const el=$("dCard");paintVars(el,c);el.style.setProperty("--holo",RAR[c.tier].holo);$("dFlip").classList.remove("show-back");$("dTurn").textContent="Lire la fiche véto";
   $("dFront").innerHTML=frontHTML(c);$("dBack").innerHTML=backHTML(c);hydrate(el,c);if(!dlg.open)dlg.showModal();el.focus();}
