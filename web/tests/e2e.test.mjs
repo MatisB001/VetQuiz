@@ -125,19 +125,35 @@ for (let q = 3; q <= 7; q++) {
   await page.fill("#ans", "Delta"); await page.click("#submit");
   await page.waitForSelector("#fb:not([hidden])");
 }
+// Fin de partie : barre de progression en grand, puis le sachet, puis le résumé (demande de Seb, 27/11).
+ok(await page.locator("#next").textContent() === "Voir mon sachet", "dernière question : « Voir mon sachet »");
 await page.click("#next");
-await page.waitForSelector("#v-results:not([hidden])");
-ok(await page.locator("#rScore").textContent() === "25", "résultat : 5 + 0 + 5 × 4 = 25 points");
+await page.waitForSelector(".tally:not([hidden])");
+await page.click(".tally");   // toucher l'écran termine l'animation
+await page.waitForSelector("#tOpen:not([hidden])");
+ok(await page.locator("#tScore").textContent() === "25" && /sachet légendaire/.test(await page.locator("#tRes").textContent()), "fin de partie : 5 + 0 + 5 × 4 = 25 points, sachet légendaire");
+await shot("3-barre");
 const uid = players[0];
 const card = psql(`select card_id from public.quiz_runs where user_id = '${uid}'`);
 ok(card.length > 0 && psql(`select score from public.daily_results where user_id = '${uid}'`) === "25", "serveur : score 25 et carte " + card);
 
-await page.click("#openPack");
+await page.click("#tOpen");
 await page.waitForSelector("#v-pack:not([hidden])");
 ok(await page.evaluate(() => CARD && CARD.id) === card, "sachet : la carte tirée par le serveur");
+ok(!(await page.locator("#v-pack .tomorrow").isVisible()), "« Revenez demain » caché avant l'ouverture");
+await page.focus("#pack"); await page.keyboard.press("Enter");
+await page.waitForFunction(() => document.getElementById("card").classList.contains("ready"), null, { timeout: 20000 });
+await page.click("#card"); await page.waitForSelector("#controls:not([hidden])", { timeout: 20000 });
+ok(await page.locator("#v-pack .tomorrow").isVisible() && /Revenez demain/.test(await page.locator("#v-pack .tomorrow").textContent()), "sachet ouvert : « Revenez demain » avec le temps restant");
+await shot("4-sachet");
+await page.click("#packToBinder");
+await page.waitForSelector("#v-results:not([hidden])");
+ok(await page.locator("#rScore").textContent() === "25" && await page.locator("#v-results .tomorrow").isVisible(), "résumé après le sachet, avec « Revenez demain »");
 
 await page.reload(); await page.waitForTimeout(600);
-ok(await page.locator("#doneScore").textContent() === "25", "rechargement : partie terminée, 25 points");
+ok(await page.locator("#doneScore").textContent() === "25" && /Sachet ouvert/.test(await page.locator("#donePack").textContent()), "rechargement : partie terminée, 25 points, sachet ouvert");
+ok(await page.locator("#v-home .tomorrow").isVisible() && /\d+ h \d{2} min/.test(await page.locator("#v-home .tomorrow .cd").textContent()), "accueil : « Revenez demain » et compte à rebours");
+await shot("5-accueil-demain");
 
 // Réponses d'hier : visibles seulement pour un jour joué.
 await page.click("#toReview");
@@ -147,7 +163,7 @@ psql(`insert into public.quiz_runs (user_id, day, question_ids, answers, done) v
       public.quiz_day_questions(public.paris_today() - 1), '[{"tier":2,"label":"Bravo"}]', true)`);
 await page.click("#rvBack"); await page.click("#toReview");
 await page.waitForFunction(() => document.querySelectorAll("#rvList .panel").length === 7);
-await shot("3-hier");
+await shot("6-hier");
 ok(/Echo/.test(await page.locator("#rvList").textContent()) && (await page.locator("#rvList mark").first().textContent()) === "Bravo", "réponses d'hier : liste complète et réponse du joueur");
 
 ok(foreign.length === 0, "aucune requête vers un autre site" + (foreign.length ? " : " + foreign.join(", ") : ""));

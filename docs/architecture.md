@@ -46,7 +46,15 @@ Migration `20261126010000_quiz.sql` et fonction Edge `supabase/functions/quiz` (
 - **Lexique commun** `data/lexique.json` : groupes de termes strictement équivalents (abréviations, noms anglais, éponymes : IRC = MRC = CKD). `scripts/lexique.mjs` ajoute aux synonymes de chaque réponse les variantes obtenues en remplaçant un terme par ses équivalents ; `gen-questions-sql.mjs` l'applique, le moteur de correction ne change pas. Règles : jamais un terme plus large ou plus étroit, jamais un mot courant ni une abréviation à deux sens (PAM, MCT, OCD retirés pour cette raison). Rédigé par Claude, à relire par un vétérinaire.
 - **« Ma réponse était bonne »** : après une question, un bouton par essai refusé. L'action `contest` de la fonction Edge appelle `quiz_contest()` : seulement pour une question terminée de la partie du jour, seulement un texte déjà compté comme refusé (on ne peut pas créer de ligne), au plus 10 par joueur et par jour (`quiz_contest_max()`, provisoire). Le signalement est un compteur `answer_stats.contested`, sans joueur ni date ; la partie ne garde que leur nombre (`quiz_runs.contests`).
 - **Liste de revue** : vue `answer_review` (Table Editor ou SQL Editor de Supabase), essais refusés signalés au moins une fois ou tapés au moins 5 fois, les plus signalés d'abord, avec le texte de la question. Pour accepter un essai : l'ajouter à `synonyms.json` (cette question) ou au lexique (toutes les questions), relancer `gen-questions-sql.mjs` et coller le SQL produit.
-- Bêta dans Claude : `node scripts/build-beta.mjs <maquette/src> <cartes/build> <questions.json> <synonyms.json> <sortie.html>` assemble le même gabarit, corrigé dans la page, avec 7 questions d'essai et `web/beta.js` ; une page Claude ne peut rien enregistrer pour un visiteur extérieur, les retours restent dans le navigateur et se copient depuis l'écran de score.
+- Démo dans Claude (appelée bêta jusqu'au 27/11) : `node scripts/build-demo.mjs <maquette/src> <cartes/build> <questions.json> <synonyms.json> <sortie.html>` assemble le même gabarit, corrigé dans la page, avec 7 questions d'essai et `web/demo.js` ; une page Claude ne peut rien enregistrer pour un visiteur extérieur, les retours restent dans le navigateur et se copient depuis l'écran de score. Seule la démo permet de rejouer (exception expliquée aux joueurs).
+
+## Fin de partie et accueil (27/11/2026)
+
+Dans le gabarit partagé, donc identique sur le site, le site test et la démo :
+- après la 7e question, la barre de progression s'affiche en grand et se remplit point par point (paliers commun, rare, épique, légendaire), puis « Ouvrir mon sachet » ; le résumé du score ne vient qu'après l'ouverture (« Voir mon résumé ») ;
+- l'accueil explique la journée en trois cases : 7 questions, votre score choisit la rareté du sachet, 1 sachet par jour ;
+- une fois le sachet ouvert, « Revenez demain ! » avec le temps restant (accueil, scène du sachet, résumé) ;
+- le compte à rebours vise minuit **heure de Paris**, comme le serveur (`paris_today()`), et non minuit de l'appareil.
 
 ## Mise en service (dans l'ordre)
 

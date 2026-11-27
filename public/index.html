@@ -371,6 +371,36 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
 .srcs li{font-size:12px}
 .srcs li span{display:block;color:var(--muted-ink);font-size:11px}
 .rules .fine{margin-top:6px;font-size:11.5px;color:var(--muted-ink)}
+/* ---------- Comment ça marche, à demain, fin de partie (demande de Seb, 27/11) ---------- */
+.steps{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;max-width:44ch}
+.steps li{position:relative;display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:start;border:2px solid var(--ink);background:var(--paper-2);padding:5px 9px 6px 6px;font-size:12.5px;line-height:1.35}
+.steps li:last-child{background:var(--gold-hi)}
+.steps li:not(:last-child)::after{content:"";position:absolute;left:13px;bottom:-8px;width:2px;height:6px;background:var(--ink)}
+.steps i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;background:var(--ink);color:var(--paper);font-family:var(--font-display);font-size:13px;line-height:1}
+.steps b{font-family:var(--font-display);font-size:14px;letter-spacing:.02em}
+body.day-done .lede-ex{display:none}
+.tomorrow{display:none;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;border:2px solid var(--ink);background:var(--gold-hi);color:var(--ink);padding:9px 11px;font-size:12.5px;line-height:1.35;text-align:left}
+body.day-opened .tomorrow{display:grid}
+body.day-opened .next{display:none}
+.tomorrow p{margin:0}
+.tomorrow p b:first-child{display:block;font-family:var(--font-display);font-size:17px;line-height:1.15;margin-bottom:2px}
+.tomorrow .cd{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tomorrow .minipack{width:30px;box-shadow:2px 2px 0 var(--shadow)}
+.tomorrow .minipack::after{font-size:15px}
+.tomorrow .btn{grid-column:1/-1;justify-self:start}
+.packview .tomorrow{width:min(420px,100%);box-shadow:4px 4px 0 var(--shadow)}
+#packIntro{margin:0 0 6px;font-weight:600}
+.tally{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(9,12,24,.9);padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.tally[hidden]{display:none}body.tally-on{overflow:hidden}
+.tally-box{width:min(520px,100%);background:var(--night-2);color:var(--paper);border:3px solid var(--line);box-shadow:6px 6px 0 var(--ink);padding:18px 16px;display:grid;gap:12px;animation:tzoom .6s cubic-bezier(.2,1.5,.4,1)}
+@keyframes tzoom{from{transform:scale(.5);opacity:0}}
+.tally .eyebrow{margin:0;color:var(--muted)}.tally p{margin:0}
+.tally-score{display:flex;align-items:baseline;gap:8px}.tally-score b{font-family:var(--font-display);font-size:54px;line-height:1;font-variant-numeric:tabular-nums}.tally-score span{font-family:var(--font-display);font-size:18px}
+.tally .pbar{padding:10px 12px 6px;gap:9px}.tally .pb-now{font-size:21px}.tally .pb-next{font-size:13px}.tally .pb-track{height:24px}
+.tally .pb-gem{width:18px;height:18px;margin:-9px 0 0 -9px}.tally .pb-gem:last-child{margin-left:-11px}
+.tally-rule{font-size:13px;color:var(--muted)}
+.tally-res{font-family:var(--font-display);font-size:18px;line-height:1.35;animation:tstamp .45s cubic-bezier(.2,1.4,.4,1)}@keyframes tstamp{from{opacity:0;transform:scale(1.8)}}.tally-res b{color:var(--c)}
+.tally-res i{display:inline-block;width:14px;height:14px;border:2px solid var(--ink);background:var(--c);margin-right:8px;vertical-align:-1px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 
@@ -394,7 +424,12 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
     <div class="panel hero">
       <p class="eyebrow">Quiz du jour · n° <span class="dayno">1</span></p>
       <h1 id="todayDate">Jeudi 26 novembre</h1>
-      <p class="lede"><b>Donnez la réponse la plus pointue, pas la plus évidente.</b> 7 questions sur le chien et le chat, 30 secondes chacune : de 1 point (réponse connue de tous) à 5 points (réponse de spécialiste).</p>
+      <p class="lede"><b>Donnez la réponse la plus pointue, pas la plus évidente.</b></p>
+      <ol class="steps" aria-label="Comment ça marche">
+        <li><i>1</i><span><b>7 questions</b> sur le chien et le chat, 30 s chacune</span></li>
+        <li><i>2</i><span><b>Votre score</b> choisit la rareté du sachet</span></li>
+        <li><i>3</i><span><b>1 sachet par jour</b> à ouvrir : une nouvelle race pour votre classeur</span></li>
+      </ol>
       <p class="lede lede-ex">Ex. « Citez une race de chien » : Labrador 1 point, Xoloitzcuintle 5 points. Votre première réponse acceptée est définitive.</p>
       <ul class="themes" id="themes" aria-label="Thèmes du jour"></ul>
       <div id="heroPlay"><button class="btn big" id="play">Jouer</button></div>
@@ -403,12 +438,13 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
         <div class="row"><button class="btn" id="doneMain">Ouvrir mon sachet</button><button class="btn ghost" id="doneAnswers">Revoir mes réponses</button></div>
       </div>
       <p class="next">Prochain quiz dans <b id="countdown">…</b></p>
+      <div class="tomorrow" role="status"></div>
     </div>
 
     <div class="panel teaser">
       <div class="minipack" aria-hidden="true"></div>
       <div>
-        <h2>Un sachet par jour</h2>
+        <h2>Votre sachet du jour</h2>
         <p>Votre score débloque un sachet commun, rare, épique ou légendaire. Plus le sachet est rare, plus la carte qu'il contient a de chances de l'être.</p>
       </div>
       <div class="ladder" id="ladder"></div>
@@ -461,11 +497,13 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
       <p style="margin:0;font-size:12.5px">Chances de tirer chaque rareté de carte dans ce sachet :</p>
       <div class="odds" id="odds"></div>
       <button class="btn big" id="openPack">Ouvrir mon sachet</button>
+      <div class="tomorrow"></div>
     </div>
   </section>
 
   <!-- ===== Sachet ===== -->
   <section class="view packview" id="v-pack" aria-label="Sachet du jour" hidden>
+    <p class="hint" id="packIntro" hidden></p>
     <div class="stage" id="stage">
       <div class="rays" id="rays"></div>
       <div class="ring" id="ring"></div>
@@ -496,8 +534,9 @@ dialog::backdrop{background:rgba(5,7,14,.82)}
     <p class="hint blink" id="hint">Glissez le doigt le long des pointillés pour déchirer</p>
     <div class="controls" id="controls" hidden>
       <button class="btn" id="side">Lire la fiche véto</button>
-      <button class="btn ghost on-night" id="packToBinder">Voir mon classeur</button>
+      <button class="btn ghost on-night" id="packToBinder">Voir mon résumé</button>
     </div>
+    <div class="tomorrow" role="status"></div>
     <p class="note" id="packNote"></p>
   </section>
 
@@ -815,7 +854,19 @@ const dateFR=(()=>{const s=new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"
 $("todayDate").textContent=dateFR;$("packDate").textContent=dateFR;$("rDate").textContent=dateFR.toLowerCase();
 $("themes").innerHTML=[...new Set(Q.map(q=>q.cat))].map(c=>`<li>${c}</li>`).join("");
 document.querySelectorAll(".dayno").forEach(s=>s.textContent=DAYNO);
-function tickCountdown(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);const d=Math.max(0,m-n),h=Math.floor(d/3.6e6),mi=Math.floor(d%3.6e6/6e4);$("countdown").textContent=`${h} h ${String(mi).padStart(2,"0")} min`;}
+/* le serveur change de jour à minuit, heure de Paris (heure d'été comprise) ; à défaut, minuit de l'appareil */
+function msToNextDay(){const now=Date.now();
+  try{const p={};new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Paris",year:"numeric",month:"numeric",day:"numeric"}).formatToParts(new Date(now)).forEach(x=>{p[x.type]=x.value;});
+    const hr=t=>+new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Paris",hour:"numeric",hourCycle:"h23"}).format(new Date(t))%24;
+    for(const o of [1,2]){const t=Date.UTC(+p.year,+p.month-1,+p.day+1,-o);if(hr(t)===0&&t>now)return t-now;}}catch(e){}
+  const m=new Date(now);m.setHours(24,0,0,0);return Math.max(0,m-now);}
+function tickCountdown(){const d=msToNextDay(),h=Math.floor(d/3.6e6),mi=Math.floor(d%3.6e6/6e4),s=`${h} h ${String(mi).padStart(2,"0")} min`;
+  document.querySelectorAll("#countdown,.tomorrow .cd").forEach(e=>{e.textContent=s;});}
+/* « Revenez demain » : affiché sur l'accueil, le résumé et la scène du sachet une fois le sachet du jour ouvert */
+const TOMORROW=`<div class="minipack" aria-hidden="true"></div><p><b>Revenez demain !</b>7 nouvelles questions et un nouveau sachet à débloquer, dans <b class="cd">…</b>.</p>`;
+function fillTomorrow(html){document.querySelectorAll(".tomorrow").forEach(e=>{e.innerHTML=html;});tickCountdown();}
+function syncDay(){document.body.classList.toggle("day-done",!!S.done);document.body.classList.toggle("day-opened",!!(S.done&&S.opened));}
+fillTomorrow(TOMORROW);
 tickCountdown();setInterval(tickCountdown,20000);
 function counts(){const n=S.owned.length;["tabCount","btCount","bCount"].forEach(id=>$(id).textContent=`${n}/${DOGS.length}`);
   const pct=(n/DOGS.length*100)+"%";$("btFill").style.width=pct;$("bFill").style.width=pct;["btBar","bBar"].forEach(id=>$(id).setAttribute("aria-valuenow",n));
@@ -823,9 +874,10 @@ function counts(){const n=S.owned.length;["tabCount","btCount","bCount"].forEach
 function renderHome(){counts();const sc=score(),pk=packFor(sc);
   $("heroPlay").hidden=S.done;$("heroDone").hidden=!S.done;
   $("play").textContent=S.answers.length?`Reprendre (question ${S.answers.length+1}/7)`:"Jouer";
-  if(S.done){$("doneScore").textContent=sc;$("donePack").textContent=S.opened?"Sachet ouvert, revenez demain.":`Vous avez gagné un ${pk.name}.`;
+  if(S.done){$("doneScore").textContent=sc;$("donePack").textContent=S.opened?"Sachet ouvert.":`Vous avez gagné un ${pk.name.toLowerCase()}.`;
     $("doneMain").textContent=S.opened?"Voir ma nouvelle carte":"Ouvrir mon sachet";}
   {const mp=document.querySelector(".teaser .minipack");if(mp){if(S.done)paintFoil(mp,pk.k);else ["0","1","2","3","4"].forEach(i=>mp.style.removeProperty("--f"+i));}}
+  syncDay();
   $("ladder").innerHTML=PACKS.map(p=>`<div class="${S.done&&p===pk?"on":""}" style="--c:${RAR[p.k].t}"><b>${RAR[p.k].k}</b>dès ${p.min} pt${p.min>1?"s":""}</div>`).join("");
   const th=$("thumbs");th.innerHTML="";S.owned.slice(-4).reverse().forEach(id=>th.appendChild(makeMini(byId[id],false)));
   for(let i=S.owned.length;i<4;i++){const c=DOGS.find(d=>!S.owned.includes(d.id)&&![...th.children].some(x=>x.dataset.id===d.id));if(!c)break;const m=makeMini(c,false);m.dataset.id=c.id;th.appendChild(m);}}
@@ -865,7 +917,7 @@ const getMissed=()=>{try{return JSON.parse(localStorage.getItem(MISSKEY)||"[]");
 const logMiss=(q,s)=>{try{const L=getMissed();L.push({q:q.id,s,d:todayKey});localStorage.setItem(MISSKEY,JSON.stringify(L.slice(-500)));}catch(e){}};
 function showHint(t){$("qhint").textContent=t;$("qhint").hidden=false;}
 function renderTries(){$("tries").innerHTML=tries.map(t=>`<li><s>${esc(t.s)}</s></li>`).join("");$("tries").hidden=!tries.length;}
-function startGame(){if(S.done){go("results");return;}qi=S.answers.length;go("game");showQ();}
+function startGame(){if(S.done){if(S.opened)go("results");else openPackView();return;}qi=S.answers.length;go("game");showQ();}
 function pips(){$("pips").innerHTML=Q.map((_,i)=>{const a=S.answers[i];return `<i class="${i===qi&&!answered?"cur":""}" style="${a?"background:"+PCOL[a.tier]:""}"></i>`;}).join("");$("gScore").textContent=score();}
 function showQ(){answered=false;const q=Q[qi];$("qCat").textContent=q.cat;$("qNum").textContent=`Question ${qi+1}/7`;$("qText").textContent=q.q;
   $("qText").className="qtext"+(q.q.length>120?" xlong":q.q.length>80?" long":"");$("qhint").hidden=true;paintPbar($("pbarG"),score());
@@ -900,7 +952,7 @@ function submit(input,timeout){if(answered)return;const q=Q[qi],txt=(input||"").
    <p>${msg}</p>${top.length?`<p><b>Niveau Professeur :</b> ${top.join(" ; ")}.</p>`:""}
    <details class="allans"><summary>Voir les ${q.ans.length} réponses acceptées</summary><ul>${[5,4,3,2,1].map(t=>{const L=q.ans.filter(a=>a[1]===t);return L.length?`<li style="--pc:${PCOL[t]}"><b>${t} · ${LV[t]}</b> ${L.map(a=>{const m=esc(splitLabel(a[0]).main);return a[0]===r.label?`<mark>${m}</mark>`:m;}).join(" ; ")}</li>`:"";}).join("")}</ul></details>
    <p class="src">Source : non renseignée dans la base${q.ref?` (domaine : ${esc(q.ref)})`:""}. Réponses à faire valider par un vétérinaire.</p>
-   <button class="btn" id="next">${qi<6?"Question suivante":"Voir mon score"}</button>`;
+   <button class="btn" id="next">${qi<6?"Question suivante":"Voir mon sachet"}</button>`;
   fb.hidden=false;pips();paintPbar($("pbarG"),score(),prev);$("next").onclick=nextQ;$("next").focus({preventScroll:true});}
 
 /* ---------- Barre de progression des sachets ---------- */
@@ -920,7 +972,31 @@ function paintPbar(el,sc,prev,final){if(!el.firstChild)buildPbar(el);const pk=pa
   if(up){const g=gems[i-1];el.classList.remove("unlock");g.classList.remove("pop");void el.offsetWidth;el.classList.add("unlock");g.classList.add("pop");
     setTimeout(()=>{SFX.ding(i);buzz([15,30,15]);},520);}}
 const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
-function nextQ(){if(qi<6){qi++;showQ();}else{S.done=true;save();go("results");}}
+function nextQ(){if(qi<6){qi++;showQ();}else{S.done=true;save();showTally();}}
+
+/* ---------- Fin de partie : la barre de progression en grand, puis le sachet ----------
+   (demande de Seb, 27/11) La barre se remplit point par point, chaque palier franchi s'allume
+   (commun, rare, épique, légendaire) ; ensuite seulement le sachet, puis le résumé. */
+const tally=document.createElement("div");tally.className="tally";tally.hidden=true;
+tally.setAttribute("role","dialog");tally.setAttribute("aria-modal","true");tally.setAttribute("aria-label","Votre sachet du jour");
+tally.innerHTML=`<div class="tally-box"><p class="eyebrow">Partie terminée</p><div class="tally-score"><b id="tScore">0</b><span>points</span></div>
+  <div class="pbar" id="pbarT"></div><p class="tally-rule">Votre score choisit le sachet : plus il est haut, plus le sachet est rare, et plus il a de chances de contenir une carte rare.</p>
+  <p class="tally-res" id="tRes" hidden></p><button class="btn big" id="tOpen" type="button" hidden>Ouvrir mon sachet</button></div>`;
+document.body.appendChild(tally);
+let tTimer=0,tStep=null;
+function showTally(){const sc=score(),el=$("pbarT"),pk=packFor(sc);
+  clearInterval(tTimer);el.innerHTML="";$("tRes").hidden=true;$("tOpen").hidden=true;$("tScore").textContent="0";
+  tally.hidden=false;document.body.classList.add("tally-on");
+  const end=()=>{clearInterval(tTimer);tStep=null;$("tScore").textContent=sc;
+    const r=$("tRes");r.style.setProperty("--c",RAR[pk.k].t);r.innerHTML=`<i></i>Vous gagnez un <b>${esc(pk.name.toLowerCase())}</b> !`;r.hidden=false;
+    $("tOpen").hidden=false;$("tOpen").focus({preventScroll:true});};
+  paintPbar(el,0);
+  if(RM||sc===0){paintPbar(el,sc,null,true);end();return;}
+  let s=0;tStep=()=>{s++;$("tScore").textContent=s;paintPbar(el,s,s-1,s===sc);SFX.tick();if(s>=sc)end();};
+  setTimeout(()=>{if(tStep)tTimer=setInterval(()=>tStep&&tStep(),Math.max(70,Math.min(140,2400/sc)));},650);
+  /* toucher l'écran pendant l'animation la termine tout de suite */
+  tally.onclick=e=>{if(!tStep||e.target.closest("#tOpen"))return;clearInterval(tTimer);paintPbar(el,sc,null,true);end();};}
+$("tOpen").onclick=()=>{tally.hidden=true;document.body.classList.remove("tally-on");openPackView();};
 $("ansForm").addEventListener("submit",e=>{e.preventDefault();ac();if(!$("ans").value.trim()){$("ans").focus();return;}submit($("ans").value,false);});
 $("ans").addEventListener("input",()=>{$("qhint").hidden=true;});
 $("skip").onclick=()=>{ac();submit("",false);};
@@ -932,7 +1008,7 @@ function renderResults(){const sc=score(),pk=packFor(sc);$("rScore").textContent
     return `<li><i style="--pc:${PCOL[a.tier]}"></i><span>${a.label?esc(splitLabel(a.label).main):(a.input?`<s>${esc(a.input)}</s>`:"—")}<span class="q">${q.cat}${a.label?" · "+LV[a.tier]:""}${a.tries&&a.tries.length?` · ${a.tries.length} essai${a.tries.length>1?"s":""} refusé${a.tries.length>1?"s":""}`:""}</span></span><span class="p">+${a.pts}</span></li>`;}).join("");
   $("packName").innerHTML=`<i style="--c:${RAR[pk.k].t}"></i>${pk.name}`;paintPbar($("pbarR"),sc,null,true);
   $("odds").innerHTML=RKEYS.map((k,i)=>`<div><span>${RAR[k].k}</span><span class="tr" style="--c:${RAR[k].t}"><i style="width:${pk.odds[i]}%"></i></span><span>${pk.odds[i]} %</span></div>`).join("");
-  $("openPack").textContent=S.opened?"Voir ma nouvelle carte":"Ouvrir mon sachet";$("copied").textContent="";counts();}
+  $("openPack").textContent=S.opened?"Voir ma nouvelle carte":"Ouvrir mon sachet";$("copied").textContent="";counts();syncDay();}
 $("openPack").onclick=()=>{if(S.opened)go("binder");else openPackView();};
 $("copy").onclick=()=>{const txt=`VetQuiz n° ${DAYNO} · ${score()}/35 · ${packFor(score()).name}\n${Q.map((_,i)=>SQ[(S.answers[i]||{tier:0}).tier]).join("")}`;
   const ok=()=>{$("copied").textContent="Copié.";};
@@ -947,7 +1023,8 @@ function draw(){const pk=packFor(score());let r=Math.random()*100,ti=0;for(let i
 /* ---------- Ouverture du sachet ---------- */
 const stage=$("stage"),pack=$("pack"),packTop=$("packTop"),card=$("card"),flip=$("flip"),tilt=$("tilt"),hint=$("hint");
 let CARD=null,state="idle",progress=0,dragging=false,sx=0,moved=0,lastTick=0;
-function openPackView(){if(!S.packId){const c=draw();if(!c){$("packNote").textContent="Votre classeur est complet.";go("binder");return;}S.packId=c.id;save();}
+function openPackView(){syncDay();{const sc=score(),it=$("packIntro");it.textContent=`Partie terminée : ${sc} point${sc>1?"s":""}. Ouvrez votre ${packFor(sc).name.toLowerCase()} !`;it.hidden=false;}
+  if(!S.packId){const c=draw();if(!c){$("packNote").textContent="Votre classeur est complet.";go("binder");return;}S.packId=c.id;save();}
   CARD=byId[S.packId];resetStage();const pk=packFor(score());$("packTag").textContent=pk.name;$("packTag").style.background="var(--ink)";$("packTag").style.color=RAR[pk.k].hi;paintFoil(pack,pk.k);$("packNote").textContent=`Ce sachet : ${packFor(score()).odds.map((o,i)=>RAR[RKEYS[i]].k.toLowerCase()+" "+o+" %").join(", ")}.`;go("pack");pack.focus({preventScroll:true});}
 function resetStage(){state="pack";progress=0;lastTick=0;ambient=false;parts=[];
   $("controls").hidden=true;$("rays").classList.remove("on");$("banner").classList.remove("go");
@@ -1015,12 +1092,12 @@ async function reveal(){state="revealing";const R=RAR[CARD.tier],T=R.i;hint.clas
   card.style.setProperty("--holo",R.holo);ambient=!RM&&T>=1;if(ambient&&!fxOn){fxOn=true;requestAnimationFrame(loop);}
   $("back").className="face back vet";$("back").innerHTML=backHTML(CARD);hydrate($("back"),CARD);
   card.style.setProperty("--glow",R.t+"8c");state="revealed";card.setAttribute("aria-label",`${CARD.name}, ${R.k} : touchez pour retourner`);
-  if(!S.owned.includes(CARD.id)){S.owned.push(CARD.id);}S.opened=true;save();counts();
+  if(!S.owned.includes(CARD.id)){S.owned.push(CARD.id);}S.opened=true;save();counts();$("packIntro").hidden=true;syncDay();
   hint.textContent=`Nouvelle race : ${S.owned.length}/${DOGS.length} dans votre classeur`;$("controls").hidden=false;}
 function turn(){if(state!=="revealed")return;flip.classList.toggle("show-back");const b=flip.classList.contains("show-back");SFX.whoosh();$("side").textContent=b?"Voir le dessin":"Lire la fiche véto";}
 card.addEventListener("click",()=>{if(state==="ready")reveal();else if(state==="revealed")turn();});
 card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click();}});
-$("side").onclick=turn;$("packToBinder").onclick=()=>go("binder");
+$("side").onclick=turn;$("packToBinder").onclick=()=>go("results");
 
 /* ---------- Classeur ---------- */
 let filter="all",spf="all",preview=false;
@@ -1159,7 +1236,8 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
     try { await refresh(true); }
     catch (e) { return fail(e); }
     finally { starting = false; $("play").disabled = false; }
-    if (S.done) { go("results"); return; }
+    // partie finie : le sachet s'il reste à ouvrir, sinon le résumé
+    if (S.done) { if (S.packId && !S.opened) openPackView(); else go("results"); return; }
     qi = S.answers.length; tries = []; go("game"); showQ();
   };
 
@@ -1239,7 +1317,7 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
       <div class="scale">${[1, 2, 3, 4, 5].map((t) => `<div class="${t === tier ? "hit" : ""}" style="--pc:${PCOL[t]}"><b>${PTS[t]}</b><span class="lvn">${LV[t]}</span></div>`).join("")}</div>
       ${msg ? `<p>${msg}</p>` : ""}
       <p class="src">Toutes les réponses acceptées seront visibles demain, avec les questions du jour.</p>
-      <button class="btn" id="next">${qi < 6 ? "Question suivante" : "Voir mon score"}</button>`;
+      <button class="btn" id="next">${S.done ? "Voir mon sachet" : "Question suivante"}</button>`;
     fb.hidden = false; pips(); paintPbar($("pbarG"), score(), prev);
     $("next").onclick = nextQ; $("next").focus({ preventScroll: true });
     contestBox(qi, [...new Set(tries.filter((t) => t.k === "miss").map((t) => t.s))]);
@@ -1270,7 +1348,8 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
 
   nextQ = function () {
     if (qi < 6 && !S.done) { qi++; tries = []; showQ(); }
-    else { S.done = true; go("results"); loadCollection().then(counts, () => {}); }
+    // fin de partie, comme dans le gabarit : barre de progression en grand, sachet, puis résumé
+    else { S.done = true; save(); showTally(); loadCollection().then(counts, () => {}); }
   };
 
   // La carte a déjà été tirée par le serveur à la fin de la partie.

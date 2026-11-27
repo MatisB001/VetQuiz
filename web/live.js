@@ -94,7 +94,8 @@
     try { await refresh(true); }
     catch (e) { return fail(e); }
     finally { starting = false; $("play").disabled = false; }
-    if (S.done) { go("results"); return; }
+    // partie finie : le sachet s'il reste à ouvrir, sinon le résumé
+    if (S.done) { if (S.packId && !S.opened) openPackView(); else go("results"); return; }
     qi = S.answers.length; tries = []; go("game"); showQ();
   };
 
@@ -174,7 +175,7 @@
       <div class="scale">${[1, 2, 3, 4, 5].map((t) => `<div class="${t === tier ? "hit" : ""}" style="--pc:${PCOL[t]}"><b>${PTS[t]}</b><span class="lvn">${LV[t]}</span></div>`).join("")}</div>
       ${msg ? `<p>${msg}</p>` : ""}
       <p class="src">Toutes les réponses acceptées seront visibles demain, avec les questions du jour.</p>
-      <button class="btn" id="next">${qi < 6 ? "Question suivante" : "Voir mon score"}</button>`;
+      <button class="btn" id="next">${S.done ? "Voir mon sachet" : "Question suivante"}</button>`;
     fb.hidden = false; pips(); paintPbar($("pbarG"), score(), prev);
     $("next").onclick = nextQ; $("next").focus({ preventScroll: true });
     contestBox(qi, [...new Set(tries.filter((t) => t.k === "miss").map((t) => t.s))]);
@@ -205,7 +206,8 @@
 
   nextQ = function () {
     if (qi < 6 && !S.done) { qi++; tries = []; showQ(); }
-    else { S.done = true; go("results"); loadCollection().then(counts, () => {}); }
+    // fin de partie, comme dans le gabarit : barre de progression en grand, sachet, puis résumé
+    else { S.done = true; save(); showTally(); loadCollection().then(counts, () => {}); }
   };
 
   // La carte a déjà été tirée par le serveur à la fin de la partie.
