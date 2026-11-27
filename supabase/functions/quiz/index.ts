@@ -1,6 +1,6 @@
 // Fonction Edge « quiz » : corrige les réponses côté serveur (voir core.js et la migration 20261126010000_quiz.sql).
 // Appel : POST avec l'en-tête Authorization du joueur (compte ou session anonyme) et un corps JSON
-//   { action: "state" } | { action: "start", qi } | { action: "answer", qi, text, final? } | { action: "review", day } | { action: "contest", qi, text }
+//   { action: "state" } | { action: "start", qi } | { action: "answer", qi, text, final? } | { action: "review", day } | { action: "contest", qi, text } ; « answer » renvoie aussi share = { same, total, pct } (part des joueurs du jour)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { handle, QuizError } from "./core.js";
 

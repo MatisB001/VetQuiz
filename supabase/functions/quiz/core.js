@@ -46,8 +46,11 @@ async function answer(rpc, uid, qi, input, final) {
   if (r.kind === "ok") {
     await log(r.label, r.tier, true);
     const res = await rpc("quiz_answer", { uid, qi, tier: r.tier, label: r.label });
+    // « X % des joueurs ont répondu cela » : jamais bloquant (base pas encore à jour, erreur passagère).
+    let share = null;
+    try { share = await rpc("quiz_share", { uid, qi }); } catch (e) { share = null; }
     // Les autres réponses possibles ne sont montrées que si la liste complète l'est aussi.
-    return { kind: "ok", ...res, ...(res.accepted ? { alts: r.alts } : {}) };
+    return { kind: "ok", ...res, ...(share ? { share } : {}), ...(res.accepted ? { alts: r.alts } : {}) };
   }
   // Un essai refusé qui ressemble à une donnée personnelle (e-mail, numéro) n'est pas compté.
   if (r.kind === "miss" && !personal(text)) await log(norm(text), 0, false);

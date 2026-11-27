@@ -10,7 +10,7 @@ begin
   -- Fonctions de partie réservées au serveur (droits déclarés).
   foreach t in array array['public.quiz_state(uuid)', 'public.quiz_answer(uuid,integer,integer,text)', 'public.quiz_start(uuid,integer)',
                            'public.quiz_attempt(uuid)', 'public.purge_anonymous_sessions()', 'public.purge_inactive_accounts()',
-                           'public.quiz_contest(uuid,integer,text)'] loop
+                           'public.quiz_contest(uuid,integer,text)', 'public.quiz_share(uuid,integer)'] loop
     total := total + 2;
     if has_function_privilege('anon', t, 'execute') then r := r || ('anon peut exécuter ' || t); end if;
     if has_function_privilege('authenticated', t, 'execute') then r := r || ('authenticated peut exécuter ' || t); end if;
@@ -92,6 +92,9 @@ begin
   begin if public.quiz_contest(u1, 0, 'verification') is not false or (select count(*) from public.answer_review) < 0
         then r := r || 'signalement : réponse inattendue'::text; end if;
   exception when others then r := r || ('signalements (migration 20261127010000_contestations.sql) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if public.quiz_share(u1, 0) is not null then r := r || 'part des joueurs : réponse inattendue'::text; end if;
+  exception when others then r := r || ('part des joueurs (migration 20261127020000_part_reponses.sql) : ' || sqlerrm); end;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
     case when cardinality(r) = 0 then total || '/' || total || ' ok'

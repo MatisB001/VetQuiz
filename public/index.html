@@ -1315,13 +1315,22 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
     const fb = $("fb"); fb.style.setProperty("--pc", PCOL[tier]);
     fb.innerHTML = `<div class="fb-head">${head}<span class="pts">+${pts}</span></div>
       <div class="scale">${[1, 2, 3, 4, 5].map((t) => `<div class="${t === tier ? "hit" : ""}" style="--pc:${PCOL[t]}"><b>${PTS[t]}</b><span class="lvn">${LV[t]}</span></div>`).join("")}</div>
-      ${msg ? `<p>${msg}</p>` : ""}
+      ${msg ? `<p>${msg}</p>` : ""}${shareLine(r.share)}
       <p class="src">Toutes les réponses acceptées seront visibles demain, avec les questions du jour.</p>
       <button class="btn" id="next">${S.done ? "Voir mon sachet" : "Question suivante"}</button>`;
     fb.hidden = false; pips(); paintPbar($("pbarG"), score(), prev);
     $("next").onclick = nextQ; $("next").focus({ preventScroll: true });
     contestBox(qi, [...new Set(tries.filter((t) => t.k === "miss").map((t) => t.s))]);
   };
+
+  /* « X % des joueurs ont répondu cela » (décision de Seb, 27/11, comme Zebra) : joueurs du jour, lui compris */
+  function shareLine(s) {
+    if (!s || !(s.total > 0)) return "";
+    const t = s.same <= 1 && s.total <= 1 ? "Vous êtes le premier joueur du jour à répondre à cette question."
+      : s.same <= 1 ? `Personne d'autre n'a donné cette réponse aujourd'hui (${s.total} joueurs).`
+      : `<b>${s.pct} %</b> des joueurs du jour ont donné cette réponse (${s.same} sur ${s.total}).`;
+    return `<p class="share">${t}</p>`;
+  }
 
   /* « Ma réponse était bonne » : le joueur signale un essai refusé ; le serveur ne garde qu'un compteur par texte */
   function contestBox(cq, refused) {
@@ -1343,7 +1352,8 @@ let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("
     $("next").before(box);
   }
   const css = document.createElement("style");
-  css.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}";
+  css.textContent = ".contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}" +
+    ".fb .share{font-size:12.5px;border-left:4px solid var(--pc,var(--ink));padding:2px 0 2px 8px}.fb .share b{font-variant-numeric:tabular-nums}";
   document.head.appendChild(css);
 
   nextQ = function () {

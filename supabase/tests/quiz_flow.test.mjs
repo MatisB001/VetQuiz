@@ -74,6 +74,7 @@ ok(logCount() === logs, "essai refusé : e-mail ou numéro jamais compté");
 r = await play(A, { action: "answer", qi: 0, text: "écho" });
 ok(r.kind === "ok" && r.tier === 5 && r.label === "Echo (écho)" && r.done === false, "réponse acceptée : niveau 5");
 ok(r.accepted === undefined && r.alts === undefined, "réponse acceptée : liste cachée jusqu'au lendemain");
+ok(r.share && r.share.same === 1 && r.share.total === 1 && r.share.pct === 100, "part des joueurs : seul joueur du jour, 100 %");
 ok(sql("select n || ':' || tier from public.answer_stats where accepted and answer = 'Echo (écho)'") === "1:5", "réponse acceptée : comptée avec son niveau, sous son libellé");
 ok(sql("select count(*) from information_schema.columns where table_name = 'answer_stats' and column_name in ('day', 'user_id')") === "0", "statistiques : ni date ni identifiant");
 await rejects(play(A, { action: "answer", qi: 0, text: "Alpha" }), 409, "question déjà répondue");
@@ -162,10 +163,28 @@ await rejects(play(A, { action: "review", day: "hier" }), 400, "date invalide re
 // 11. Partie parfaite : 35 points, sachet légendaire.
 await rejects(play(B, { action: "start", qi: 0 }), 409, "départ sans état du jour refusé");
 await play(B, { action: "state" });
+const shares = [];
 for (let qi = 0; qi < 7; qi++) {
   await play(B, { action: "start", qi });
   r = await play(B, { action: "answer", qi, text: "Echo" });
+  shares.push(r.share);
 }
 ok(r.done === true && r.score === 35 && typeof r.card_id === "string", "partie parfaite : 35 points et une carte");
+
+// 12. « X % des joueurs ont répondu cela » : deux nombres seulement, calculés sur les parties du jour.
+const aAns = JSON.parse(sql(`select answers::text from public.quiz_runs where user_id = '${A}' and day = public.paris_today()`));
+ok(shares.every((s, qi) => {
+  const a = aAns[qi], total = a ? 2 : 1, same = 1 + (a && a.label === "Echo (écho)" ? 1 : 0);
+  return s && s.total === total && s.same === same && s.pct === Math.round(100 * same / total) && Object.keys(s).length === 3;
+}), "part des joueurs : même réponse / joueurs du jour, sans autre donnée");
+ok(shares[0].same === 2 && shares[0].pct === 100, "part des joueurs : deux joueurs, même réponse à la question 1");
+ok(sql(`select public.quiz_share('${B}', 7) is null and public.quiz_share('20000000-0000-0000-0000-0000000000ff', 0) is null`) === "t", "part des joueurs : rien hors partie ou hors question");
+ok(sql("select has_function_privilege('anon', 'public.quiz_share(uuid,integer)', 'execute') or has_function_privilege('authenticated', 'public.quiz_share(uuid,integer)', 'execute')") === "f", "part des joueurs : réservée au serveur");
+const C = "20000000-0000-0000-0000-0000000000c1";
+sql(`insert into auth.users (id, is_anonymous) values ('${C}', true)`);
+const sansPart = (fn, args) => (fn === "quiz_share" ? Promise.reject(new Error("fonction absente")) : rpc(fn, args));
+await handle(sansPart, C, { action: "state" }); await handle(sansPart, C, { action: "start", qi: 0 });
+r = await handle(sansPart, C, { action: "answer", qi: 0, text: "Echo" });
+ok(r.kind === "ok" && r.tier === 5 && r.share === undefined, "part des joueurs : une base sans la fonction ne bloque pas la réponse");
 
 console.log(`  Tests partie (fonction de correction) passés : ${n}.`);
