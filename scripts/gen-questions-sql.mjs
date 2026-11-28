@@ -28,7 +28,7 @@ if (rows.length < 7) throw new Error("il faut au moins 7 questions");
 writeFileSync(out, `-- Questions VetQuiz et réponses acceptées : CONFIDENTIEL, ne pas publier ni committer.
 -- Produit par scripts/gen-questions-sql.mjs (${rows.length} questions). À coller dans le SQL Editor de Supabase.
 begin;
-update public.questions set pos = -1 - pos where pos >= 0;
+update public.questions set pos = (select least(coalesce(min(pos), 0), 0) from public.questions) - 1 - pos where pos >= 0;
 insert into public.questions (id, pos, dom, q, answers) values
 ${rows.join(",\n")}
 on conflict (id) do update set pos = excluded.pos, dom = excluded.dom, q = excluded.q, answers = excluded.answers;
