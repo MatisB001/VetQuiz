@@ -83,14 +83,6 @@
     };
   }
 
-  /* onglet Règles : description de la base de la démo */
-  const renderRules0 = renderRules;
-  renderRules = function () {
-    renderRules0();
-    const tot = QBANK.reduce((s, q) => s + q.ans.length, 0), syn = QBANK.reduce((s, q) => s + q.ans.reduce((t, a) => t + (a[3] || []).length, 0), 0);
-    $("baseInfo").textContent = `Démo : ${QBANK.length} questions d'essai, ${tot} réponses acceptées, ${syn.toLocaleString("fr-FR")} synonymes (dont abréviations, noms anglais et éponymes du lexique commun). Une référence générale par question ; réponses non vérifiées une à une, niveaux estimés par Claude, à relire par un vétérinaire.`;
-  };
-
   /* « Prochain quiz dans » n'a pas de sens ici : la démo garde les 7 mêmes questions d'essai */
   const st = document.createElement("style");
   st.textContent = ".next{display:none}.contest{display:grid;gap:8px;margin:12px 0}.contest p{margin:0}.contest .btn{text-align:left;white-space:normal}.demo-panel .row{flex-wrap:wrap;gap:8px}#plBody :disabled{opacity:.5;cursor:not-allowed}";

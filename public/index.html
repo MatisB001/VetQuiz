@@ -291,6 +291,12 @@ body.live .howto .only-live{display:list-item}
 .card .art .spr{transition:opacity .15s steps(2)}
 .card.sus .art::after{content:"?";position:absolute;inset:0;z-index:3;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:92px;color:#fff;text-shadow:5px 5px 0 var(--ink);animation:qpulse .9s steps(2) infinite}
 @keyframes qpulse{50%{transform:scale(1.08)}}
+/* épique, révélation propre (Seb, 28/11, 12 h 38) : trois battements de cœur, la carte tourne sur elle-même,
+   le dessin reste en silhouette noire pendant que le nom se fixe parmi des lettres qui défilent, puis apparaît d'un coup */
+.card.beat{animation:beat .42s steps(4)}
+@keyframes beat{30%{scale:1.06}60%{scale:.99}}
+.card.espin{animation:espin .75s cubic-bezier(.3,.7,.4,1)}
+@keyframes espin{from{rotate:y 0deg}to{rotate:y 360deg}}
 .card.sus .plate h2{letter-spacing:.04em}
 .card.sus .stats li{opacity:0;transform:translateX(-10px)}
 .card.sus .stats li.in{opacity:1;transform:none;transition:opacity .3s steps(3),transform .3s steps(3)}
@@ -632,52 +638,6 @@ body.day-opened .next{display:none}
       <div class="tablewrap"><table class="ptable" id="rarTable"></table></div>
       <p class="fine">Chiens : rang selon les inscriptions au LOF en 2025 (Société centrale canine). Chats : le site du LOOF étant inaccessible, les 10 races les plus inscrites au LOOF en 2025 (chiffres repris par la presse) viennent en tête, puis les autres races sont classées selon les inscriptions au GCCF britannique en 2025. Classement provisoire, à remplacer par les chiffres complets du LOOF.</p>
     </div>
-    <div class="panel">
-      <h2>Au recto des cartes</h2>
-      <ul>
-        <li><b>Caractère, taille, robe des chiens</b> : standard officiel de la race (FCI ; United Kennel Club pour les races non reconnues par la FCI), traduit et résumé.</li>
-        <li><b>Caractère des chats</b> : comparaison entre races d'une enquête auprès de 5 726 propriétaires finlandais (Salonen et al. 2019).</li>
-        <li><b>Espérance de vie</b> : chiens, âge médian au décès au Royaume-Uni (McMillan et al. 2024) ; chats, espérance de vie à la naissance (VetCompass, Teng et al. 2024).</li>
-      </ul>
-      <p class="fine">Attention : la race ne prédit qu'une petite part du comportement d'un individu (environ 9 % chez le chien selon Morrill et al. 2022, Science 376:eabk0639). Le standard décrit un idéal d'élevage, pas un chien réel.</p>
-    </div>
-    <div class="panel">
-      <h2>Au dos des cartes</h2>
-      <ul>
-        <li><b>Prédispositions</b> : affections plus fréquentes dans la race que chez les chiens ou chats croisés. Le chiffre est un rapport de cotes (OR) tiré des études VetCompass par maladie (cliniques généralistes du Royaume-Uni) ; seuls les OR significatifs (IC 95 % au-dessus de 1) sont retenus, trois au plus par carte. Un OR très élevé avec un IC large repose sur peu de cas, et une race absente des études n'est pas pour autant épargnée.</li>
-        <li><b>Pathologies fréquentes</b> : affections les plus courantes dans la race, même quand elles sont banales chez tous (maladie parodontale, otite…). Une pathologie peut être fréquente sans être une prédisposition.</li>
-        <li><b>Mutations génétiques</b> : fréquence de l'allèle muté mesurée dans la race, quand elle est publiée.</li>
-        <li><b>En pratique</b> : ce qui change la prise en charge (sensibilité aux médicaments, groupe sanguin).</li>
-      </ul>
-      <p class="fine">Chaque chiffre vient d'une publication citée en bas de la fiche. Une rubrique absente signifie qu'aucune donnée publiée n'a été trouvée pour la race, pas que la race en est indemne.</p>
-    </div>
-    <div class="panel">
-      <h2>Crédits</h2>
-      <p>Dessins des races générés avec Gemini (intelligence artificielle de Google), puis découpés et réduits en couleurs pour le jeu. Textes et données vétérinaires : sources citées au dos de chaque carte.</p>
-    </div>
-    <div class="panel">
-      <h2>Fautes d'orthographe</h2>
-      <ul>
-        <li>Les accents, les majuscules et la ponctuation ne comptent pas.</li>
-        <li>Fautes de frappe tolérées (lettre manquante, en trop, remplacée ou inversée) : aucune sous 5 lettres, une de 5 à 7 lettres, deux à partir de 8 lettres.</li>
-        <li>Les synonymes donnés dans la base sont acceptés (entre parenthèses ou séparés par « / »), ainsi qu'un début de mot d'au moins 5 lettres (« parvo »).</li>
-        <li>Une faute qui change le sens est refusée : hypo et hyper, vitamine A et vitamine D.</li>
-        <li>Les mots en trop sont tolérés (« ingestion de chocolat », « surdité du dalmatien »).</li>
-        <li>Une réponse qui reprend la question, un mot trop général (« carcinome ») ou plusieurs réponses tapées d'un coup ne comptent pas : on vous demande de préciser, et le temps continue.</li>
-        <li>Si votre réponse correspond à plusieurs réponses de niveaux différents, elle compte au niveau le plus bas.</li>
-      </ul>
-    </div>
-    <div class="panel">
-      <h2>Réponses refusées sur cet appareil</h2>
-      <p>Pour enrichir la base : chaque réponse refusée est notée ici, dans votre navigateur seulement. Copiez la liste et envoyez-la pour qu'on ajoute les synonymes ou les réponses manquantes.</p>
-      <ul class="missed" id="missedList"></ul>
-      <div class="row" style="margin-top:10px"><button class="btn ghost" id="copyMissed">Copier la liste</button><button class="linkbtn" id="clearMissed">Vider la liste</button><span id="missedMsg" role="status" style="font-size:12px"></span></div>
-    </div>
-    <div class="panel">
-      <h2>Questions du jour</h2>
-      <p id="baseInfo"></p>
-      <ul class="srcs" id="srcList" style="margin-top:8px"></ul>
-    </div>
     <div class="panel" id="dataPanel">
       <h2>Vos données</h2>
       <p>Sans compte, votre partie, vos scores et vos cartes sont rattachés à un identifiant aléatoire gardé dans ce navigateur. Ce bouton les efface définitivement, sur nos serveurs et sur cet appareil : vous repartirez de zéro. Voir la <a href="#confidentialite" data-legal="confidentialite">politique de confidentialité</a>.</p>
@@ -721,7 +681,7 @@ body.day-opened .next{display:none}
 <p>Vos données de compte sont stockées en France (région de Paris) par Supabase. Supabase et certains de ses propres sous-traitants techniques (fournisseurs de cloud) peuvent toutefois y accéder ou les traiter hors de l'Union européenne, notamment à Singapour et aux États-Unis. Ces transferts sont encadrés par les clauses contractuelles types adoptées par la Commission européenne (décision 2021/914). Les e-mails de connexion sont envoyés par Scaleway depuis la France, sans transfert hors de l'UE. Cloudflare (hébergement du site et réception des e-mails envoyés à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>) est une société américaine certifiée au Data Privacy Framework UE–États-Unis, avec les clauses contractuelles types en secours. Vous pouvez obtenir une copie de ces garanties en nous écrivant.</p>
 <h3>5. Cookies et stockage local</h3>
 <p>Nous utilisons uniquement des traceurs <b>strictement nécessaires</b> au service que vous demandez, exemptés de consentement par l'article 82 de la loi Informatique et Libertés :</p>
-<div class="tablewrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th></tr></thead><tbody><tr><td><code>vq-auth</code> (stockage local, session Supabase)</td><td>Retrouver votre partie, avec ou sans compte</td><td>Jusqu'à déconnexion, effacement par vous ou suppression de la session</td></tr><tr><td><code>vq-site-2</code> (stockage local)</td><td>Afficher sans attendre la partie du jour, vos cartes et votre série</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-missed</code> (stockage local)</td><td>Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée</td><td>Jusqu'à « Vider la liste » ou effacement par vous</td></tr><tr><td><code>vq-sound</code> (stockage local)</td><td>Mémoriser si le son est activé</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-howto</code> (stockage local)</td><td>Ne montrer qu'une fois la fenêtre « Comment jouer »</td><td>Jusqu'à effacement par vous</td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th></tr></thead><tbody><tr><td><code>vq-auth</code> (stockage local, session Supabase)</td><td>Retrouver votre partie, avec ou sans compte</td><td>Jusqu'à déconnexion, effacement par vous ou suppression de la session</td></tr><tr><td><code>vq-site-2</code> (stockage local)</td><td>Afficher sans attendre la partie du jour, vos cartes et votre série</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-sound</code> (stockage local)</td><td>Mémoriser si le son est activé</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-howto</code> (stockage local)</td><td>Ne montrer qu'une fois la fenêtre « Comment jouer »</td><td>Jusqu'à effacement par vous</td></tr></tbody></table></div>
 <p>Aucun cookie publicitaire, de réseau social ou de mesure d'audience tierce.</p>
 <h3>6. Vos droits</h3>
 <p>Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, de portabilité et d'opposition (art. 15 à 21 RGPD), ainsi que du droit de définir des directives sur le sort de vos données après votre décès (art. 85 loi Informatique et Libertés).</p>
@@ -1010,37 +970,43 @@ function frontHTML(c,mini,fs){const R=RAR[c.tier];const st=[["heart","Caractère
   <ul class="stats"${fs<10.5?` style="font-size:${fs}px"`:""}>${st.map(([i,k,v])=>`<li>${svgPix(ICONS[i],ICOL[i])}<b>${k}</b><span>${v}</span></li>`).join("")}</ul>
   <div class="foot"><span>VetQuiz · Série 1</span><span>N° ${pad(c.no)}/${pad(DOGS.length)}</span></div></div></div>`;}
 const nfr=n=>Number(n).toLocaleString("fr-FR");
-const SRCM={D:"Donner et al. 2023, PLoS Genet 19:e1010651 (1 054 293 chiens, 250 variants)",A:"Anderson et al. 2022, PLoS Genet 18:e1009804 (11 036 chats)",O:"OMIA (Nicholas & Tammen, doi:10.25910/2AMR-PV70)"};
-function mutHTML(c){const m=c.mut,sp=c.sp==="dog"?"chiens":"chats";let h="",src=[];
-  if(m.src==="D"||m.src==="A"){h=`<ul>${m.it.map(([l,g,af])=>`<li><b>${l}</b>${g?` (${g})`:""} : ${af} % des allèles</li>`).join("")}</ul><p class="fine">Fréquence de l'allèle muté parmi ${nfr(m.n)} ${sp} de la race génotypés (échantillon surtout nord-américain).</p>`;src.push(SRCM[m.src]);}
-  else if(m.it.length){h=`<p class="fine">Variants décrits dans la race, fréquence non mesurée :</p><ul>${m.it.map(([l,g])=>`<li><b>${l}</b>${g?` (${g})`:""}</li>`).join("")}</ul>`;
-    src.push(SRCM.O+m.it.filter(x=>x[2]).map(x=>`, PMID ${x[2]}`).join(""));}
-  return [h,src];}
-function pathHTML(c){const p=c.path,sp=c.sp==="dog"?"chiens":"chats";if(!p)return ["",[]];
-  const ul=`<ul>${p.it.map(([l,v])=>`<li><b>${l}</b> : ${v} %</li>`).join("")}</ul>`;
-  if(p.src==="V")return [ul+`<p class="fine">Part des ${sp} de la race suivis en clinique vétérinaire généraliste au Royaume-Uni ayant reçu ce diagnostic${p.yr?` en ${p.yr}`:" pendant l'étude"} (programme VetCompass).</p>`,[p.ref]];
-  return [ul+`<p class="fine">Part des ${nfr(p.n)} ${sp} de la race${p.q?` (${p.q})`:""} inscrits au Kennel Club dont le propriétaire a signalé l'affection (enquête au Royaume-Uni, diagnostic non vérifié par un vétérinaire).</p>`,[p.ref]];}
+/* Dos des cartes (reprise du 28/11/2026, demande de Seb) : au plus 3 lignes par rubrique, textes explicatifs courts, sources repliées.
+   Si le dos dépasse la carte, on retire d'abord des lignes de génétique, puis de pathologies, puis de prédispositions (backFit). */
+const SRCM={D:"Donner et al. 2023, PLoS Genet 19:e1010651",A:"Anderson et al. 2022, PLoS Genet 18:e1009804",O:"OMIA (Nicholas & Tammen, doi:10.25910/2AMR-PV70)"};
 const CLIN={
-  mdr1:[(af,n)=>`<li><b>Mutation MDR1 (ABCB1)</b> : ${af} % des allèles (${nfr(n)} chiens génotypés). La glycoprotéine P limite le passage de certains médicaments dans le système nerveux central ; les chiens porteurs sont exposés à la toxicité de l'ivermectine et d'autres substrats. Un test génétique les repère avant traitement.</li>`,"Mealey et al. 2001, Pharmacogenetics 11:727 ; Mealey 2004, J Vet Pharmacol Ther 27:257"],
-  mdr1c:[(af,n)=>`<li><b>Mutation MDR1 (ABCB1)</b> : ${af} % des allèles (${nfr(n)} chats génotypés). Identifiée chez un chat intoxiqué par l'ivermectine (signes nerveux) ; effet attendu proche de celui de la mutation du chien.</li>`,"Mealey et Burke 2015, J Vet Pharmacol Ther 38:429"],
-  bloodB:[(af,n)=>`<li><b>Groupe sanguin B</b> : ${af} % des allèles sont des allèles b (${nfr(n)} chats génotypés ; un chat de groupe B en porte deux). Les chats B ont des anticorps anti-A puissants : réaction transfusionnelle avec du sang A, isoérythrolyse néonatale des chatons A ou AB nés d'une mère B. Typer avant transfusion et accouplement.</li>`,"Kehl et al. 2019, Tierarztl Prax Ausg K 47:425"],
+  mdr1:[(af,n)=>`<li><b>Mutation MDR1</b> : ${af} % des allèles. Risque de toxicité de l'ivermectine et d'autres médicaments ; tester avant traitement.</li>`,"Mealey et al. 2001, Pharmacogenetics 11:727 ; Mealey 2004, J Vet Pharmacol Ther 27:257"],
+  mdr1c:[(af,n)=>`<li><b>Mutation MDR1</b> : ${af} % des allèles. Décrite chez un chat intoxiqué par l'ivermectine.</li>`,"Mealey et Burke 2015, J Vet Pharmacol Ther 38:429"],
+  bloodB:[(af,n)=>`<li><b>Groupe sanguin B</b> : ${af} % des allèles sont b. Typer avant transfusion et accouplement (réaction grave, isoérythrolyse des chatons).</li>`,"Kehl et al. 2019, Tierarztl Prax Ausg K 47:425"],
   bloodC:[(af,n)=>`<li><b>Allèle c (groupe AB)</b> : ${af} % des allèles.</li>`,""]};
-function clinHTML(c){if(!c.clin||!c.clin.length)return ["",[]];const L=[...c.clin].sort((a,b)=>(a[0].startsWith("blood")?0:1)-(b[0].startsWith("blood")?0:1));
-  const src=[...new Set(L.map(x=>CLIN[x[0]][1]).filter(Boolean))];if(c.sp==="cat")src.push(SRCM.A);else src.push(SRCM.D);
-  return [`<h3>En pratique</h3><ul>${L.map(([k,af,n])=>CLIN[k][0](af,n)).join("")}</ul>`,src];}
-function predHTML(c){const sp=c.sp==="dog"?"chiens":"chats";
-  const po=(c.pred||[]).map(r=>`<li>${r[0]}.</li>`).join("");
-  const pv=(c.prv||[]).map(([d,q,o,ci,b])=>`<li><b>${d}</b>${q?` (${q})`:""} : OR ${o}${ci?` (IC 95 % ${ci})`:""}${b==="lab"?", par rapport au Labrador":""}</li>`).join("");
-  if(!po&&!pv)return "";
-  return `<ul>${po}${pv}</ul>`+(pv?`<p class="fine">OR : rapport de cotes de la race par rapport aux ${sp} croisés${(c.prv||[]).some(x=>x[4]==="lab")?" (sauf mention)":""}, ajusté sur d'autres facteurs (âge, sexe…), en clinique généraliste au Royaume-Uni (VetCompass).</p>`:"");}
-function backHTML(c){const pred=predHTML(c);
-  const [mh,ms]=mutHTML(c),[ph,ps]=pathHTML(c),[chh,cs]=clinHTML(c);
+/* lim = [prédispositions, pathologies, génétique] : nombre de lignes gardées */
+function backParts(c,lim){const sp=c.sp==="dog"?"chiens":"chats",h=[],src=[];
+  const pred=(c.pred||[]).map(r=>({t:`<li>${r[0]}.</li>`,s:shortRef(r[1])})).concat((c.prv||[]).map(([d,q,o,ci,b,s])=>({t:`<li><b>${d}</b>${q?` (${q})`:""} : OR ${o}${b==="lab"?" face au Labrador":""}</li>`,s,prv:1}))).slice(0,lim[0]);
+  if(pred.length){h.push(`<h3>Prédispositions</h3><ul>${pred.map(x=>x.t).join("")}</ul>`);src.push(...pred.map(x=>x.s));
+    if(pred.some(x=>x.prv))h.push(`<p class="fine">OR : rapport de cotes face aux ${sp} croisés, en clinique au Royaume-Uni (VetCompass) ; tous significatifs.</p>`);}
+  else if(c.nopred)h.push(`<h3>Prédispositions</h3><p>Aucune retrouvée dans les grandes études de clinique (VetCompass).</p>`);
+  if(c.info&&c.info.length){h.push(`<h3>Bon à savoir</h3><ul>${c.info.map(x=>`<li>${x[0]}</li>`).join("")}</ul>`);src.push(...c.info.map(x=>x[1]));}
+  const p=c.path;if(p&&lim[1]){h.push(`<h3>Pathologies fréquentes</h3><ul>${p.it.slice(0,lim[1]).map(([l,v])=>`<li><b>${l}</b> : ${v} %</li>`).join("")}</ul>`+
+    (p.src==="V"?`<p class="fine">% des ${sp} de la race ayant reçu ce diagnostic en clinique au Royaume-Uni (VetCompass).</p>`:`<p class="fine">% des ${nfr(p.n)} ${sp} de la race${p.q?` (${p.q})`:""} pour lesquels le propriétaire a signalé l'affection (enquête Kennel Club, R.-U.).</p>`));src.push(p.ref);}
+  const m=c.mut,it=m.it.slice(0,lim[2]);
+  if(it.length&&(m.src==="D"||m.src==="A")){h.push(`<h3>Mutations génétiques</h3><ul>${it.map(([l,g,af])=>`<li><b>${l}</b>${g?` (${g})`:""} : ${af} % des allèles</li>`).join("")}</ul><p class="fine">Part des allèles mutés chez ${nfr(m.n)} ${sp} de la race génotypés (surtout en Amérique du Nord).</p>`);src.push(SRCM[m.src]);}
+  else if(it.length){h.push(`<h3>Mutations génétiques</h3><ul>${it.map(([l,g])=>`<li><b>${l}</b>${g?` (${g})`:""}</li>`).join("")}</ul><p class="fine">Décrites dans la race ; fréquence inconnue.</p>`);
+    src.push(SRCM.O+it.filter(x=>x[2]).map(x=>`, PMID ${x[2]}`).join(""));}
+  if(c.clin&&c.clin.length){const L=[...c.clin].sort((a,b)=>(a[0].startsWith("blood")?0:1)-(b[0].startsWith("blood")?0:1));
+    h.push(`<h3>En pratique</h3><ul>${L.map(([k,af,n])=>CLIN[k][0](af,n)).join("")}</ul>`);src.push(...L.map(x=>CLIN[x[0]][1]).filter(Boolean),c.sp==="cat"?SRCM.A:SRCM.D);}
+  return [h.join(""),[...new Set(src.filter(Boolean))]];}
+/* niveaux de coupe, du plus complet au plus court */
+const BACKLV=[[3,3,3],[3,3,2],[3,2,2],[3,2,1],[2,2,1],[2,1,1],[2,1,0],[1,1,0],[1,0,0]];
+const BFIT=new Map();
+function backFit(c){if(BFIT.has(c.id))return BFIT.get(c.id);
+  if(!fitHost){statsFs(c);}
+  let lv=0;for(;lv<BACKLV.length-1;lv++){fitHost.innerHTML=`<div class="face back vet">${backHTML(c,lv)}</div>`;const inn=fitHost.querySelector(".inner");if(inn.scrollHeight<=inn.clientHeight+.5)break;}
+  fitHost.innerHTML="";BFIT.set(c.id,lv);return lv;}
+function backHTML(c,lv){if(lv===undefined)lv=backFit(c);const [body,ds]=backParts(c,BACKLV[lv]);
   const recto=[c.std?`standard FCI n° ${c.std}`:(c.stdSrc||""),c.carSrc||"",c.life?(c.lifeSrc||"McMillan et al. 2024, Sci Rep 14:531"):""].filter(Boolean).join(" ; ");
-  const dos=[...new Set((c.pred||[]).map(r=>shortRef(r[1])).concat((c.prv||[]).map(x=>x[5]),ps,ms,cs))].join(" ; ");
   return `<div class="frame"><i class="gem tl"></i><i class="gem tr"></i><i class="gem bl"></i><i class="gem br"></i><div class="inner">
   <div class="plate"><h2>Fiche véto</h2><canvas class="rgem" width="13" height="13" aria-hidden="true"></canvas></div>
-  ${pred?`<h3>Prédispositions</h3>${pred}`:""}${ph?`<h3>Pathologies fréquentes</h3>${ph}`:""}${mh?`<h3>Mutations génétiques</h3>${mh}`:""}${chh}
-  <p class="src">${dos?`Sources : ${dos}.`:""}${recto?` Recto : ${recto}.`:""}</p></div></div>`;}
+  ${body}
+  <details class="src" onclick="event.stopPropagation()"><summary>Sources</summary>${ds.length?`Dos : ${ds.join(" ; ")}.`:""}${recto?` Recto : ${recto}.`:""}</details></div></div>`;}
 const MYSTERY=`<div class="frame"><div class="inner"><span class="sm">VetQuiz</span><span class="q">?</span><span class="lg">Sachet du jour</span><span class="sm">Série 1 · Chiens et chats</span></div></div>`;
 function hydrate(el,c){el.querySelectorAll(".rgem").forEach(cv=>drawGem(cv,c.tier));el.querySelectorAll("canvas.spr").forEach(cv=>drawSprite(cv,c.id,false,true));}
 function miniHTML(c,owned,isNew){const G='<i class="gem tl"></i><i class="gem tr"></i><i class="gem bl"></i><i class="gem br"></i>';
@@ -1136,6 +1102,7 @@ const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}};
 /* ---------- Partie ---------- */
 let qi=0,timerId=0,tEnd=0,lastSec=30,answered=false,tries=[];
 /* journal des réponses refusées (navigateur uniquement) pour enrichir la base */
+/* réponses refusées notées dans le navigateur : servent seulement aux retours de la démo (web/demo.js) ; le site en ligne ne les écrit pas */
 const MISSKEY="vq-missed";
 const getMissed=()=>{try{return JSON.parse(localStorage.getItem(MISSKEY)||"[]");}catch(e){return [];}};
 const logMiss=(q,s)=>{try{const L=getMissed();L.push({q:q.id,s,d:todayKey});localStorage.setItem(MISSKEY,JSON.stringify(L.slice(-500)));}catch(e){}};
@@ -1323,6 +1290,16 @@ async function reveal(){state="revealing";const R=RAR[CARD.tier],T=R.i;hint.clas
     hint.textContent="";SFX.thump(.6);h2.textContent="";await wait(350);
     for(let k=1;k<=nm.length;k++){h2.textContent=nm.slice(0,k);if(nm[k-1]!==" ")SFX.tick();await wait(85);}
     await wait(550);card.classList.remove("sus");lis.forEach(li=>li.classList.remove("in"));}
+  if(T===2&&!RM){stage.style.setProperty("--b-hi",R.hi);hint.textContent="…";
+    for(let i=0;i<3;i++){card.classList.remove("beat");void card.offsetWidth;card.classList.add("beat");SFX.thump(.35+i*.25);buzz(20+i*20);ringGo("ring");await wait(560-i*110);}
+    card.classList.remove("beat");hint.textContent="";
+    const fr=$("front"),cv=fr.querySelector("canvas.spr"),h2=fr.querySelector(".plate h2"),nm=h2.textContent;
+    /* silhouette noire pendant que le nom défile ; l'animal apparaît d'un coup quand le nom est complet (Seb, 28/11, 12 h 46) */
+    const AZ="ABCDEFGHIJKLMNOPQRSTUVWXYZ#?*",scr=n=>[...nm].map((ch,k)=>k<n||ch===" "?ch:AZ[Math.random()*AZ.length|0]).join(""),K=7;
+    cv.style.filter="brightness(0)";h2.textContent=scr(0);
+    card.classList.add("espin");SFX.whoosh();flip.classList.add("revealed");await wait(780);card.classList.remove("espin");
+    for(let i=0;i<K;i++){const n=Math.round(nm.length*(i+1)/(K+1));for(let r=0;r<3;r++){h2.textContent=scr(n);SFX.tick();await wait(55);}SFX.star(Math.min(i,5));}
+    h2.textContent=nm;cv.style.filter="";}
   SFX.impact();buzz([60,30,90]);$("flash").classList.remove("go");void $("flash").offsetWidth;$("flash").classList.add("go");
   flip.classList.add("revealed");if(T>=1){stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");}
   stage.style.setProperty("--b",R.t);stage.style.setProperty("--b-hi",R.hi);stage.style.setProperty("--ray",R.hi+"3d");
@@ -1366,21 +1343,8 @@ function renderRules(){
   const nb=t=>QBANK.reduce((s,q)=>s+q.ans.filter(a=>a[1]===t).length,0),tot=QBANK.reduce((s,q)=>s+q.ans.length,0);
   $("ptsTable").innerHTML=`<thead><tr><th>Niveau</th><th class="n">Points</th><th class="n">Réponses dans la base</th></tr></thead><tbody>${[1,2,3,4,5].map(t=>`<tr><td><span class="sw" style="--c:${PCOL[t]}"></span>${LV[t]}</td><td class="n">${PTS[t]}</td><td class="n">${nb(t)}</td></tr>`).join("")}</tbody>`;
   $("oddsTable").innerHTML=`<thead><tr><th>Sachet</th><th>Score</th>${RKEYS.map(k=>`<th class="n"><span class="sw" style="--c:${RAR[k].t}"></span>${RAR[k].k}</th>`).join("")}</tr></thead><tbody>${PACKS.map((p,i)=>`<tr><td><span class="sw" style="--c:${RAR[p.k].t}"></span>${RAR[p.k].k}</td><td>${i<PACKS.length-1?p.min+"–"+(PACKS[i+1].min-1):"≥ "+p.min}</td>${p.odds.map(o=>`<td class="n">${o} %</td>`).join("")}</tr>`).join("")}</tbody>`;
-  $("baseInfo").textContent=`Base fournie : ${QBANK.length} questions, ${tot} réponses acceptées, 7 questions par jour en rotation. Aucune source n'est indiquée réponse par réponse ; certaines questions citent seulement un manuel. Sources à ajouter et réponses à faire valider par un vétérinaire avant la mise en ligne.`;
-  const syn=QBANK.reduce((s,q)=>s+q.ans.reduce((t,a)=>t+((a[3]||[]).length),0),0);
-  $("baseInfo").textContent+=` ${syn.toLocaleString("fr-FR")} synonymes ont été ajoutés pour accepter d'autres formulations (à relire).`;
-  renderMissed();
   $("rarTable").innerHTML=`<thead><tr><th>Rareté</th><th class="n">Chiens</th><th class="n">Chats</th><th class="n">Total</th></tr></thead><tbody>${RKEYS.slice().reverse().map(k=>{const d=DOGS.filter(c=>c.tier===k&&c.sp==="dog").length,t=DOGS.filter(c=>c.tier===k&&c.sp==="cat").length;return `<tr><td><span class="sw" style="--c:${RAR[k].t}"></span>${RAR[k].k}</td><td class="n">${d}</td><td class="n">${t}</td><td class="n">${d+t}</td></tr>`;}).join("")}</tbody>`;
-  $("srcList").innerHTML=Q.map(q=>`<li><b>${esc(q.cat)}.</b> ${esc(q.q)}<span>Référence indiquée : ${q.ref?esc(q.ref):"aucune"}</span></li>`).join("");}
-
-function renderMissed(){const L=getMissed(),qs=Object.fromEntries(QBANK.map(q=>[q.id,q]));
-  $("missedList").innerHTML=L.length?L.slice().reverse().slice(0,60).map(m=>`<li>« ${esc(m.s)} » <span>· ${m.q} · ${esc(qs[m.q]?qs[m.q].q:"")}</span></li>`).join(""):"<li><span>Aucune réponse refusée pour l'instant.</span></li>";
-  $("copyMissed").disabled=!L.length;}
-$("copyMissed").onclick=()=>{const L=getMissed();const txt=L.map(m=>`${m.q}\t${m.s}`).join("\n");
-  const ok=()=>{$("missedMsg").textContent=`${L.length} réponse${L.length>1?"s":""} copiée${L.length>1?"s":""}.`;};
-  try{navigator.clipboard.writeText(txt).then(ok,()=>{$("missedMsg").textContent="Copie impossible ici.";});}catch(e){$("missedMsg").textContent="Copie impossible ici.";}};
-let clearArm=false;$("clearMissed").onclick=()=>{if(!clearArm){clearArm=true;$("clearMissed").textContent="Confirmer : vider la liste";setTimeout(()=>{clearArm=false;$("clearMissed").textContent="Vider la liste";},4000);return;}
-  clearArm=false;try{localStorage.removeItem(MISSKEY);}catch(e){}$("clearMissed").textContent="Vider la liste";$("missedMsg").textContent="";renderMissed();};
+}
 
 /* « Effacer mes données » : deux clics ; eraseServer (site en ligne, web/live.js) efface d'abord la session côté serveur */
 let eraseServer=null,eraseArm=false;
@@ -1667,8 +1631,6 @@ $("eraseData").onclick=async()=>{const b=$("eraseData");
   const hide = (el) => { if (el) el.hidden = true; };
   hide($("reset"));
   hide(document.querySelector("#v-home > p.note"));
-  hide($("missedList") && $("missedList").closest(".panel"));
-  hide($("baseInfo") && $("baseInfo").closest(".panel"));
   hide(document.querySelector('.tabs button[data-v="players"]'));
   const renderRules0 = renderRules;
   renderRules = function () {

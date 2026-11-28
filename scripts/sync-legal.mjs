@@ -27,11 +27,10 @@ const FIX = {
     // web/live.js : persistSession + autoRefreshToken ; offre gratuite Supabase : session sans durée maximale
     // (« By default, it lasts indefinitely », jeton d'accès d'une heure : supabase.com/docs/guides/auth/sessions)
     ["`[à confirmer par le fil technique : ex. 30 jours]`", "jusqu'à la déconnexion ou l'effacement des données du navigateur (le jeton d'accès, valable 1 heure, est renouvelé automatiquement)"],
-    // clés réellement écrites par le site (site.tpl.html et web/live.js)
+    // clés réellement écrites par le site en ligne (site.tpl.html et web/live.js ; vq-missed ne sert qu'à la démo)
     ["| `sb-…-auth-token` (stockage local, clé de session Supabase) `[nom exact à confirmer]` | Retrouver votre partie, avec ou sans compte | Jusqu'à déconnexion, effacement par vous ou suppression de la session |\n| `[clé des préférences, à confirmer]` (stockage local) | Mémoriser vos préférences d'affichage | Jusqu'à effacement par vous |",
      "| `vq-auth` (stockage local, session Supabase) | Retrouver votre partie, avec ou sans compte | Jusqu'à déconnexion, effacement par vous ou suppression de la session |\n" +
      "| `vq-site-2` (stockage local) | Afficher sans attendre la partie du jour, vos cartes et votre série | Jusqu'à effacement par vous |\n" +
-     "| `vq-missed` (stockage local) | Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée | Jusqu'à « Vider la liste » ou effacement par vous |\n" +
      "| `vq-sound` (stockage local) | Mémoriser si le son est activé | Jusqu'à effacement par vous |\n" +
      "| `vq-howto` (stockage local) | Ne montrer qu'une fois la fenêtre « Comment jouer » | Jusqu'à effacement par vous |"],
   ],

@@ -273,8 +273,6 @@
   const hide = (el) => { if (el) el.hidden = true; };
   hide($("reset"));
   hide(document.querySelector("#v-home > p.note"));
-  hide($("missedList") && $("missedList").closest(".panel"));
-  hide($("baseInfo") && $("baseInfo").closest(".panel"));
   hide(document.querySelector('.tabs button[data-v="players"]'));
   const renderRules0 = renderRules;
   renderRules = function () {
