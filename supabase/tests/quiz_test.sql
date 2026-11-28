@@ -22,11 +22,27 @@ select public.quiz_state('10000000-0000-0000-0000-000000000001');
 select public.quiz_state('10000000-0000-0000-0000-0000000000a2');
 
 -- 1. Rotation identique à la maquette (8 questions de test : le 2e jour reprend à la 8e).
-select pg_temp.check(public.quiz_day_questions('2026-11-26') = '{T1,T2,T3,T4,T5,T6,T7}', 'rotation : jour 1');
-select pg_temp.check(public.quiz_day_questions('2026-11-27') = '{T8,T1,T2,T3,T4,T5,T6}', 'rotation : jour 2');
+select pg_temp.check(public.quiz_rotation('2026-11-26') = '{T1,T2,T3,T4,T5,T6,T7}', 'rotation : jour 1');
+select pg_temp.check(public.quiz_rotation('2026-11-27') = '{T8,T1,T2,T3,T4,T5,T6}', 'rotation : jour 2');
 update public.questions set pos = -100 where id = 'T8';
-select pg_temp.check(public.quiz_day_questions('2026-11-27') = '{T1,T2,T3,T4,T5,T6,T7}', 'question retirée : hors rotation');
+select pg_temp.check(public.quiz_rotation('2026-11-27') = '{T1,T2,T3,T4,T5,T6,T7}', 'question retirée : hors rotation');
 update public.questions set pos = 7 where id = 'T8';
+
+-- 1 bis. Série du jour figée au premier appel : mêmes questions pour tous, même si la base change dans la journée.
+select pg_temp.check(public.quiz_day_questions('2030-01-01') = public.quiz_rotation('2030-01-01'), 'jour figé : série de la rotation');
+insert into public.questions (id, pos, dom, q, answers) values ('T9', 8, 'Test', 'Question ajoutée en journée', '[["Alpha",1]]');
+select pg_temp.check(public.quiz_rotation('2030-01-01') <> (select question_ids from public.quiz_days where day = '2030-01-01'),
+  'jour figé : la rotation change avec la nouvelle question');
+select pg_temp.check(public.quiz_day_questions('2030-01-01') = (select question_ids from public.quiz_days where day = '2030-01-01'),
+  'jour figé : la série enregistrée ne change pas');
+delete from public.questions where id = 'T9';
+delete from public.quiz_days where day = '2030-01-01';
+select pg_temp.check((select question_ids from public.quiz_runs where user_id = '10000000-0000-0000-0000-000000000001' and day = public.paris_today())
+  = (select question_ids from public.quiz_days where day = public.paris_today()), 'jour figé : la partie du jour suit la série enregistrée');
+set role authenticated;
+do $$ begin perform 1 from public.quiz_days; raise exception 'ÉCHEC : quiz_days lisible par un joueur';
+exception when insufficient_privilege then raise notice 'ok : droits : quiz_days invisible pour un joueur'; end $$;
+reset role;
 
 -- 2. Le navigateur d'un joueur connecté : ni questions, ni fonctions de partie, ni écriture.
 set role authenticated;

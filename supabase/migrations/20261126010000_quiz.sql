@@ -247,7 +247,7 @@ create view public.answer_stats_review with (security_invoker = true) as
   select * from public.answer_stats where accepted or n >= 5;
 
 -- Sessions anonymes : Supabase ne les supprime pas lui-même. On efface celles qui n'ont joué aucune partie
--- depuis 90 jours, avec leurs scores et leurs cartes (durée provisoire, choix de Seb attendu). À planifier.
+-- depuis 90 jours, avec leurs scores et leurs cartes (durée choisie par Seb le 26/11/2026). À planifier.
 create or replace function public.purge_anonymous_sessions() returns int
   language plpgsql security definer set search_path = public as $$
 declare n int;

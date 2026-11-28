@@ -3,13 +3,14 @@
 -- et dont le message donne le résultat (« VÉRIFICATION : 22/22 ok » ou la liste des échecs).
 do $$
 declare
-  u1 uuid := gen_random_uuid(); r text[] := '{}'; total int := 0; n bigint; j jsonb; t text;
+  u1 uuid := gen_random_uuid(); u2 uuid := gen_random_uuid(); r text[] := '{}'; total int := 0; n bigint; j jsonb; t text;
 begin
   insert into auth.users (id, email) values (u1, 'verification-' || left(u1::text, 8) || '@exemple.invalid');
 
   -- Fonctions de partie réservées au serveur (droits déclarés).
   foreach t in array array['public.quiz_state(uuid)', 'public.quiz_answer(uuid,integer,integer,text)', 'public.quiz_start(uuid,integer)',
-                           'public.quiz_attempt(uuid)', 'public.purge_anonymous_sessions()', 'public.purge_inactive_accounts()'] loop
+                           'public.quiz_attempt(uuid)', 'public.purge_anonymous_sessions()', 'public.purge_inactive_accounts()',
+                           'public.quiz_contest(uuid,integer,text)', 'public.quiz_share(uuid,integer)'] loop
     total := total + 2;
     if has_function_privilege('anon', t, 'execute') then r := r || ('anon peut exécuter ' || t); end if;
     if has_function_privilege('authenticated', t, 'execute') then r := r || ('authenticated peut exécuter ' || t); end if;
@@ -28,6 +29,10 @@ begin
   if n <> 73 then r := r || ('écoles : ' || n); end if;
   total := total + 1; select count(*) into n from public.cards;
   if n <> 256 then r := r || ('cartes : ' || n); end if;
+  total := total + 1; select count(*) into n from public.cards where species = 'cat';
+  if n <> 40 then r := r || ('chats : ' || n); end if;
+  total := total + 1; select count(*) into n from public.cards where id = 'gwp' and tier = 'e';
+  if n <> 1 then r := r || 'rareté du Drahthaar non mise à jour (seed_cards.sql)'::text; end if;
   total := total + 1;
   begin insert into public.daily_results (user_id, day, score, tiers) values (u1, '2026-01-01', 35, '{5,5,5,5,5,5,5}');
         r := r || 'score écrit depuis le navigateur'::text;
@@ -41,6 +46,10 @@ begin
   total := total + 1;
   begin perform count(*) from public.answer_stats; r := r || 'statistiques lisibles'::text;
   exception when insufficient_privilege then null; end;
+  total := total + 1;
+  begin perform count(*) from public.answer_review; r := r || 'liste de revue lisible par un joueur'::text;
+  exception when insufficient_privilege then null;
+            when undefined_table then r := r || 'liste de revue absente (migration 20261127010000_contestations.sql)'::text; end;
   total := total + 1;
   begin if public.send_friend_request('VQ-ZZZZ') <> 'introuvable' then r := r || 'demande d''ami : réponse inattendue'::text; end if;
   exception when others then r := r || ('amis : ' || sqlerrm); end;
@@ -75,7 +84,47 @@ begin
   total := total + 1;
   begin j := public.quiz_state(u1);
         if (j ->> 'next')::int <> 0 or jsonb_array_length(j -> 'questions') <> 0 then r := r || 'quiz_state : état inattendu'::text; end if;
+        total := total + 1;
+        if jsonb_array_length(coalesce(j -> 'themes', '[]')) <> 7 then r := r || 'quiz_state : thèmes du jour absents (migration 20261126030000_themes.sql)'::text; end if;
   exception when others then r := r || ('quiz_state (serveur) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if (select question_ids from public.quiz_days where day = public.paris_today())
+            is distinct from (select question_ids from public.quiz_runs where user_id = u1 and day = public.paris_today())
+        then r := r || 'questions du jour non figées'::text; end if;
+  exception when others then r := r || ('questions du jour figées (migration 20261126040000_jour_fige.sql) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if public.quiz_contest(u1, 0, 'verification') is not false or (select count(*) from public.answer_review) < 0
+        then r := r || 'signalement : réponse inattendue'::text; end if;
+  exception when others then r := r || ('signalements (migration 20261127010000_contestations.sql) : ' || sqlerrm); end;
+  total := total + 1;
+  begin if public.quiz_share(u1, 0) is not null then r := r || 'part des joueurs : réponse inattendue'::text; end if;
+  exception when others then r := r || ('part des joueurs (migration 20261127020000_part_reponses.sql) : ' || sqlerrm); end;
+
+  -- Invité : bouton « Effacer mes données » (Règles) = delete_my_account() avec une session anonyme ;
+  -- la cascade doit emporter la session, la partie et les cartes.
+  reset role;
+  total := total + 1;
+  begin
+    insert into auth.users (id, is_anonymous) values (u2, true);
+    perform public.quiz_state(u2);
+    insert into public.cards_owned (user_id, card_id, obtained_on) values (u2, 'gwp', public.paris_today());
+    perform set_config('request.jwt.claim.sub', u2::text, true);
+    perform set_config('request.jwt.claims', json_build_object('sub', u2, 'role', 'authenticated', 'is_anonymous', true)::text, true);
+    set local role authenticated;
+    perform public.delete_my_account();
+    reset role;
+    if exists (select 1 from auth.users where id = u2) or exists (select 1 from public.quiz_runs where user_id = u2)
+       or exists (select 1 from public.cards_owned where user_id = u2) then r := r || 'effacement des données d''un invité incomplet'::text; end if;
+  exception when others then r := r || ('effacement des données d''un invité : ' || sqlerrm); end;
+  reset role;
+
+  -- Purge nocturne planifiée (migration 20261128000000_purge_planifiee.sql), là où pg_cron existe (Supabase).
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    total := total + 1;
+    begin if not exists (select 1 from cron.job where jobname = 'vq-purge-sessions-anonymes' and active)
+          then r := r || 'purge des sessions anonymes non planifiée (migration 20261128000000_purge_planifiee.sql)'::text; end if;
+    exception when others then r := r || ('pg_cron non activé (Database > Extensions, puis migration 20261128000000_purge_planifiee.sql) : ' || sqlerrm); end;
+  end if;
 
   raise exception 'VÉRIFICATION (rien n''a été conservé) : %',
     case when cardinality(r) = 0 then total || '/' || total || ' ok'
