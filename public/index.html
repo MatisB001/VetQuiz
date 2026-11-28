@@ -31,7 +31,9 @@ body{margin:0;color:var(--paper);font-family:var(--font-body);font-size:14px;lin
 .app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit}
-button:focus-visible,input:focus-visible,.pack:focus-visible,.card:focus-visible,.mini:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
+button:focus-visible,input:focus-visible,.mini:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
+/* pas de cadre jaune autour du sachet ni des cartes (Seb, 28/11, 12 h 05) : la carte prend le focus par programme */
+.pack:focus,.card:focus{outline:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- En-tête ---------- */
@@ -219,6 +221,9 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
 .stage.shake{animation:shake .38s steps(2) both}
 @keyframes shake{0%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,5px)}100%{transform:translate(0,0)}}
 #fx{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;image-rendering:pixelated}
+/* légendaire : la scène s'assombrit juste avant la révélation */
+.dim{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .45s;background:radial-gradient(closest-side,rgba(5,7,14,.35),rgba(5,7,14,.9))}
+.dim.on{opacity:1}
 .rays{position:absolute;inset:0;z-index:0;opacity:0;transition:opacity .6s;pointer-events:none;
   -webkit-mask:radial-gradient(closest-side,#000 30%,transparent 100%);mask:radial-gradient(closest-side,#000 30%,transparent 100%)}
 .rays::before{content:"";position:absolute;width:900px;height:900px;left:50%;top:50%;margin:-450px 0 0 -450px;
@@ -268,6 +273,29 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
 .card{position:absolute;width:min(286px,74vw);aspect-ratio:63/88;z-index:3;perspective:1100px;transform:translateY(8%) scale(.92);cursor:pointer;
   transition:transform .55s cubic-bezier(.25,1.5,.45,1)}
 .card.rise{transform:translateY(-34%) scale(.96);transition:transform .55s cubic-bezier(.3,.8,.4,1)}
+/* carte cachée tant que le sachet est fermé : son bas dépassait sous le sachet (signalé par Seb, 28/11/2026) */
+.card.inpack{visibility:hidden}
+.card.tremble{animation:tremble .09s steps(2) infinite}
+/* fenêtre « Comment jouer » : au premier clic sur Jouer, puis depuis Règles (Seb, 28/11) */
+dialog.howto{max-width:min(460px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--shadow);padding:16px 18px 18px}
+.howto h2{font-family:var(--font-display);font-size:22px;margin:0 0 4px}
+.howto .lead{margin:0 0 10px;font-weight:700}
+.howto ol{margin:0;padding-left:22px;display:grid;gap:7px;font-size:14px;line-height:1.35}
+.howto .only-live{display:none}
+body.live .howto .only-live{display:list-item}
+.howto .ok{margin-top:14px;width:100%}
+.howto .small{margin:10px 0 0;font-size:12px;opacity:.8}
+/* légendaire, révélation à suspense (Seb, 28/11, 12 h 05) : la carte se retourne sans dessin ni nom, les infos
+   s'affichent une à une, puis le nom lettre par lettre, puis l'animal apparaît dans le grand éclair */
+.card.sus .art .spr,.card.sus .art .holo,.card.sus .art .sheen{opacity:0}
+.card .art .spr{transition:opacity .15s steps(2)}
+.card.sus .art::after{content:"?";position:absolute;inset:0;z-index:3;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:92px;color:#fff;text-shadow:5px 5px 0 var(--ink);animation:qpulse .9s steps(2) infinite}
+@keyframes qpulse{50%{transform:scale(1.08)}}
+.card.sus .plate h2{letter-spacing:.04em}
+.card.sus .stats li{opacity:0;transform:translateX(-10px)}
+.card.sus .stats li.in{opacity:1;transform:none;transition:opacity .3s steps(3),transform .3s steps(3)}
+.card.sus .stats li.in b{animation:blink .25s steps(2) 3}
+@keyframes tremble{50%{translate:2px -2px}}
 .card.settle{transform:translateY(0) scale(1)}
 .card.bump{animation:bump .28s}
 @keyframes bump{40%{scale:1.05}}
@@ -283,20 +311,24 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
   clip-path:polygon(10px 0,calc(100% - 10px) 0,calc(100% - 10px) 5px,calc(100% - 5px) 5px,calc(100% - 5px) 10px,100% 10px,100% calc(100% - 10px),calc(100% - 5px) calc(100% - 10px),calc(100% - 5px) calc(100% - 5px),calc(100% - 10px) calc(100% - 5px),calc(100% - 10px) 100%,10px 100%,10px calc(100% - 5px),5px calc(100% - 5px),5px calc(100% - 10px),0 calc(100% - 10px),0 10px,5px 10px,5px 5px,10px 5px)}
 .face.back{transform:rotateY(180deg)}
 .frame{position:absolute;inset:4px;padding:9px;display:flex;flex-direction:column;
-  clip-path:inherit;background:linear-gradient(150deg,var(--t-hi) 0%,var(--t) 22%,var(--t) 60%,var(--t-dk) 100%)}
-.frame::before{content:"";position:absolute;inset:4px;border:2px solid rgba(255,255,255,.45);border-right-color:rgba(0,0,0,.25);border-bottom-color:rgba(0,0,0,.25);pointer-events:none}
-.gem{position:absolute;width:9px;height:9px;background:var(--t-hi);border:2px solid var(--ink);transform:rotate(45deg);z-index:2}
-.gem.tl{left:5px;top:5px}.gem.tr{right:5px;top:5px}.gem.bl{left:5px;bottom:5px}.gem.br{right:5px;bottom:5px}
+  clip-path:inherit;background:linear-gradient(135deg,color-mix(in srgb,var(--t-hi) 85%,var(--t)) 0 7%,var(--t) 7% 24%,color-mix(in srgb,var(--t-dk) 85%,var(--t)) 24% 31%,var(--t) 31% 43%,color-mix(in srgb,var(--t-hi) 85%,var(--t)) 43% 47%,color-mix(in srgb,#fff 60%,var(--t-hi)) 47% 49%,color-mix(in srgb,var(--t-hi) 85%,var(--t)) 49% 53%,var(--t) 53% 70%,color-mix(in srgb,var(--t-dk) 85%,var(--t)) 70% 78%,var(--t) 78% 92%,color-mix(in srgb,var(--t-hi) 85%,var(--t)) 92% 100%)}
+.frame::before{content:"";position:absolute;inset:4px;border:2px solid rgba(255,255,255,.6);border-right-color:rgba(0,0,0,.3);border-bottom-color:rgba(0,0,0,.3);pointer-events:none}
+.gem{position:absolute;width:11px;height:11px;background:linear-gradient(135deg,#fff 0 28%,var(--t-hi) 28% 55%,var(--t) 55% 78%,var(--t-dk) 78%);border:2px solid var(--ink);transform:rotate(45deg);z-index:2}
+.gem.tl{left:4px;top:4px}.gem.tr{right:4px;top:4px}.gem.bl{left:4px;bottom:4px}.gem.br{right:4px;bottom:4px}
 .inner{position:relative;flex:1;background:var(--paper);color:var(--ink);border:3px solid var(--ink);display:flex;flex-direction:column;overflow:hidden;min-height:0;
-  box-shadow:inset 0 0 0 2px var(--paper-2)}
-.plate{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 7px 4px;background:linear-gradient(180deg,#fffaf0,var(--paper-2));border-bottom:3px solid var(--ink)}
-.plate h2{font-family:var(--font-display);font-weight:700;font-size:19px;line-height:1.05;margin:0;text-wrap:balance}
+  box-shadow:0 0 0 2px var(--t-hi),inset 0 0 0 2px var(--paper-2)}
+.plate{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 7px 4px;background:none;border-bottom:3px solid var(--ink)}
+.plate h2{font-family:var(--font-display);font-weight:700;font-size:19px;line-height:1.05;margin:0;text-wrap:balance;color:var(--ink)}  /* entête sans fond, nom en noir (Seb, 28/11, 4 h 17) */
 .plate h2.long{font-size:15px}
 .rgem{flex:none;width:26px;height:26px;image-rendering:pixelated}
 /* fenêtre du dessin : même taille sur toutes les cartes (celle du Bulldog, 242 × 169 px pour une carte de 286 px ; demande de Seb, 27/11/2026) */
 .art{position:relative;margin:6px 6px 0;border:3px solid var(--ink);aspect-ratio:242/169;overflow:hidden;flex:0 1 auto;min-height:84px;
-  background:radial-gradient(circle at 50% 55%,var(--a1) 0,var(--a2) 45%,var(--a3) 100%)}
-.art .burst{position:absolute;inset:-40%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.55) 0 8deg,transparent 8deg 20deg);animation:spin 18s linear infinite}
+  background:var(--bg,radial-gradient(circle at 50% 55%,var(--a1) 0,var(--a2) 45%,var(--a3) 100%)) center/100% 100% no-repeat;image-rendering:pixelated}
+/* fonds et cadres validés par Seb le 28/11/2026 : fond fixe (rayons de plus en plus marqués avec la rareté), sans rayons qui tournent ; reflet arc-en-ciel d'inclinaison gardé (Seb, 28/11, 4 h 04) */
+.art .burst{display:none}
+.art .wf{position:absolute;inset:0;z-index:2;pointer-events:none;padding:6px;background:linear-gradient(135deg,color-mix(in srgb,var(--t-hi) 60%,var(--t)) 0 6%,var(--t) 6% 42%,color-mix(in srgb,var(--t-hi) 38%,var(--t)) 42% 48%,var(--t) 48% 80%,color-mix(in srgb,var(--t-dk) 38%,var(--t)) 80% 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.art .wf::after{content:"";position:absolute;inset:6px;box-shadow:0 0 0 1px rgba(10,14,30,.75);pointer-events:none}
 .art canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;z-index:1}
 .holo{position:absolute;inset:0;z-index:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:var(--holo,0);transition:opacity .6s;
   /* reflet arc-en-ciel seul : pointillés retirés sur toutes les raretés (demande de Seb, 28/11/2026) */
@@ -304,7 +336,7 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
   background-size:260% 260%;background-position:calc(50% + var(--gx,0) * 90%) calc(50% + var(--gy,0) * 90%)}
 .sheen{position:absolute;inset:0;z-index:3;pointer-events:none;mix-blend-mode:soft-light;opacity:var(--holo,0);
   background:radial-gradient(circle at calc(50% + var(--gx,0) * 70%) calc(45% + var(--gy,0) * 70%),rgba(255,255,255,.6),transparent 50%)}
-.typeline{display:flex;justify-content:space-between;align-items:center;margin:6px 6px 0;background:var(--ink);color:var(--paper);font-family:var(--font-display);font-size:12px;padding:2px 7px;letter-spacing:.04em}
+.typeline{display:flex;justify-content:space-between;align-items:center;margin:6px 6px 0;background:linear-gradient(90deg,#12172e 0 55%,color-mix(in srgb,var(--t-dk) 70%,#12172e));color:var(--paper);font-family:var(--font-display);font-size:12px;padding:2px 7px;letter-spacing:.04em}
 .typeline b{color:var(--t-hi);font-weight:600}
 .fitm .art{flex:none}  /* mesure : fenêtre jamais réduite ; ailleurs elle ne se réduit que sur une carte plus étroite que 286 px */
 /* texte du recto : 10,5 px, réduit carte par carte (statsFs) quand il ne tient pas sous la fenêtre fixe */
@@ -363,6 +395,8 @@ body[data-view="game"] .sitefoot,body[data-view="pack"] .sitefoot{display:none}
 .mini.locked .gem{background:#59617f}
 .mini.locked .inner{background:var(--night);color:var(--muted);box-shadow:none}
 .mini.locked .plate,.mini.locked .foot{background:var(--night-2);color:var(--muted)}
+.mini.locked .plate h2{color:inherit;text-shadow:none}
+.mini.locked .inner{box-shadow:none}
 .mini.locked .art{background:var(--night-2)}
 .mini.locked .lk{flex:1;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:34px;color:var(--paper);opacity:.75}
 dialog{border:0;padding:0;background:transparent;color:var(--paper);max-width:min(340px,calc(100vw - 32px));width:100%;overflow:visible}
@@ -520,8 +554,9 @@ body.day-opened .next{display:none}
   <section class="view packview" id="v-pack" aria-label="Sachet du jour" hidden>
     <p class="hint" id="packIntro" hidden></p>
     <div class="stage" id="stage">
+      <div class="dim" id="dim"></div>
       <div class="rays" id="rays"></div>
-      <div class="ring" id="ring"></div>
+      <div class="ring" id="ring"></div><div class="ring" id="ring2"></div>
       <div class="card" id="card" tabindex="-1" aria-label="Carte">
         <div class="aura"></div>
         <div class="tilt" id="tilt"><div class="flip" id="flip">
@@ -571,6 +606,7 @@ body.day-opened .next{display:none}
   <section class="view rules" id="v-rules" aria-label="Règles" hidden>
     <div class="panel">
       <h2>Comment jouer</h2>
+      <p><button class="btn ghost" id="howtoAgain" type="button">Revoir « Comment jouer »</button></p>
       <ol>
         <li>Chaque jour, les mêmes 7 questions pour tout le monde, sur le chien et le chat. Vous avez 30 secondes par question.</li>
         <li>Chaque question accepte de nombreuses bonnes réponses. Vous pouvez proposer autant de réponses que vous voulez pendant les 30 secondes : la première bonne réponse compte et clôt la question.</li>
@@ -581,7 +617,7 @@ body.day-opened .next{display:none}
     </div>
     <div class="panel">
       <h2>Les niveaux de réponse</h2>
-      <p>Chaque bonne réponse a un niveau, du plus courant au plus pointu. Au lancement, ce niveau est fixé par un expert. Il pourra ensuite être recalculé à partir des réponses réelles des joueurs.</p>
+      <p>Chaque bonne réponse a un niveau, du plus courant au plus pointu. Au lancement, ce niveau est fixé par un expert.</p>
       <div class="tablewrap"><table class="ptable" id="ptsTable"></table></div>
     </div>
     <div class="panel">
@@ -685,7 +721,7 @@ body.day-opened .next{display:none}
 <p>Vos données de compte sont stockées en France (région de Paris) par Supabase. Supabase et certains de ses propres sous-traitants techniques (fournisseurs de cloud) peuvent toutefois y accéder ou les traiter hors de l'Union européenne, notamment à Singapour et aux États-Unis. Ces transferts sont encadrés par les clauses contractuelles types adoptées par la Commission européenne (décision 2021/914). Les e-mails de connexion sont envoyés par Scaleway depuis la France, sans transfert hors de l'UE. Cloudflare (hébergement du site et réception des e-mails envoyés à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>) est une société américaine certifiée au Data Privacy Framework UE–États-Unis, avec les clauses contractuelles types en secours. Vous pouvez obtenir une copie de ces garanties en nous écrivant.</p>
 <h3>5. Cookies et stockage local</h3>
 <p>Nous utilisons uniquement des traceurs <b>strictement nécessaires</b> au service que vous demandez, exemptés de consentement par l'article 82 de la loi Informatique et Libertés :</p>
-<div class="tablewrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th></tr></thead><tbody><tr><td><code>vq-auth</code> (stockage local, session Supabase)</td><td>Retrouver votre partie, avec ou sans compte</td><td>Jusqu'à déconnexion, effacement par vous ou suppression de la session</td></tr><tr><td><code>vq-site-2</code> (stockage local)</td><td>Afficher sans attendre la partie du jour, vos cartes et votre série</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-missed</code> (stockage local)</td><td>Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée</td><td>Jusqu'à « Vider la liste » ou effacement par vous</td></tr><tr><td><code>vq-sound</code> (stockage local)</td><td>Mémoriser si le son est activé</td><td>Jusqu'à effacement par vous</td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th></tr></thead><tbody><tr><td><code>vq-auth</code> (stockage local, session Supabase)</td><td>Retrouver votre partie, avec ou sans compte</td><td>Jusqu'à déconnexion, effacement par vous ou suppression de la session</td></tr><tr><td><code>vq-site-2</code> (stockage local)</td><td>Afficher sans attendre la partie du jour, vos cartes et votre série</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-missed</code> (stockage local)</td><td>Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée</td><td>Jusqu'à « Vider la liste » ou effacement par vous</td></tr><tr><td><code>vq-sound</code> (stockage local)</td><td>Mémoriser si le son est activé</td><td>Jusqu'à effacement par vous</td></tr><tr><td><code>vq-howto</code> (stockage local)</td><td>Ne montrer qu'une fois la fenêtre « Comment jouer »</td><td>Jusqu'à effacement par vous</td></tr></tbody></table></div>
 <p>Aucun cookie publicitaire, de réseau social ou de mesure d'audience tierce.</p>
 <h3>6. Vos droits</h3>
 <p>Vous disposez des droits d'accès, de rectification, d'effacement, de limitation, de portabilité et d'opposition (art. 15 à 21 RGPD), ainsi que du droit de définir des directives sur le sort de vos données après votre décès (art. 85 loi Informatique et Libertés).</p>
@@ -737,6 +773,21 @@ body.day-opened .next{display:none}
   <footer class="sitefoot"><a href="#mentions" data-legal="mentions">Mentions légales</a><span aria-hidden="true"> · </span><a href="#confidentialite" data-legal="confidentialite">Confidentialité</a><span aria-hidden="true"> · </span><a href="#cgu" data-legal="cgu">CGU</a></footer>
 </div>
 
+<dialog id="howto" class="howto" aria-labelledby="howtoT">
+  <h2 id="howtoT">Comment jouer</h2>
+  <p class="lead">Visez la réponse la plus précise, pas la plus évidente.</p>
+  <ol>
+    <li><b>7 questions par jour</b>, les mêmes pour tous, 30 secondes chacune. Nouvelles questions à minuit.</li>
+    <li><b>De 1 à 5 points</b> selon la précision. Ex.&nbsp;: «&nbsp;Citez une race de chien&nbsp;»&nbsp;: Labrador 1 point, Xoloitzcuintle 5.</li>
+    <li>Plusieurs essais possibles&nbsp;: la première réponse acceptée compte. Accents et fautes de frappe tolérés.</li>
+    <li class="only-live">Ensuite, vous voyez combien de joueurs ont répondu comme vous. Les réponses acceptées sont dévoilées le lendemain.</li>
+    <li><b>À la fin, un sachet</b>&nbsp;: plus votre score est haut, plus il est rare. Un sachet rare augmente vos chances d'avoir une carte rare, sans la garantir.</li>
+    <li><b>Chaque carte est une race</b>&nbsp;: plus elle est populaire, plus sa carte est rare. Jamais de doublon.</li>
+    <li><b>Jeu en test, conçu par des étudiants.</b> Nous faisons le maximum pour éviter les erreurs. Une bonne réponse refusée&nbsp;? Touchez «&nbsp;Ma réponse était bonne&nbsp;». Une autre erreur&nbsp;? Écrivez à <a href="mailto:contact@vetquiz.net">contact@vetquiz.net</a>.</li>
+  </ol>
+  <p class="small">Gratuit. Contenu pédagogique, pas un avis vétérinaire.</p>
+  <button class="btn ok" id="howtoOk" type="button">J'ai compris</button>
+</dialog>
 <dialog id="dlg" aria-label="Carte">
   <div class="dlg">
     <div class="card static" id="dCard" tabindex="0" aria-label="Carte : touchez pour la retourner"><div class="tilt"><div class="flip" id="dFlip"><article class="face front" id="dFront"></article><article class="face back vet" id="dBack"></article></div></div></div>
@@ -769,14 +820,49 @@ const SPN={dog:"Chien",cat:"Chat"};
 const byId=Object.fromEntries(DOGS.map(c=>[c.id,c]));
 const RKEYS=["c","r","e","l"];
 const RAR={
-  c:{i:0,k:"Commun",t:"#3fa34d",hi:"#a8e0a0",dk:"#1f5e28",a:["#f1fbe9","#a9de94","#5fae4f"],holo:0},
-  r:{i:1,k:"Rare",t:"#3b7dd8",hi:"#a8ccff",dk:"#1d4787",a:["#eef5ff","#9cc4f5","#4f86d6"],holo:.35},
-  e:{i:2,k:"Épique",t:"#d94f9e",hi:"#ffb3dc",dk:"#7d1f55",a:["#fff0f7","#f5a8d0","#d65c9f"],holo:.7},
-  l:{i:3,k:"Légendaire",t:"#e3b02a",hi:"#ffe58a",dk:"#8a5a08",a:["#fff6cf","#ffd968","#e9a923"],holo:1}};
+  /* palettes « pierres » validées par Seb le 28/11/2026 (bleu éclairci à sa demande, 4 h 09) : g = [reflet, clair, moyen, couleur, sombre] */
+  c:{i:0,k:"Commun",t:"#12a05c",hi:"#8ff0b8",dk:"#0b5d3b",a:["#eafff2","#8ff0b8","#2fd07f"],g:["#eafff2","#8ff0b8","#2fd07f","#12a05c","#0b5d3b"],holo:0},
+  r:{i:1,k:"Rare",t:"#2868e6",hi:"#afcdff",dk:"#103696",a:["#f0f6ff","#afcdff","#5592ff"],g:["#f0f6ff","#afcdff","#5592ff","#2868e6","#103696"],holo:.35},
+  e:{i:2,k:"Épique",t:"#d4196a",hi:"#ffa6cc",dk:"#7c0a3c",a:["#fff0f7","#ffa6cc","#ff4d93"],g:["#fff0f7","#ffa6cc","#ff4d93","#d4196a","#7c0a3c"],holo:.7},
+  l:{i:3,k:"Légendaire",t:"#e8a400",hi:"#ffe98a",dk:"#8a5200",a:["#fffbe0","#ffe98a","#ffc928"],g:["#fffbe0","#ffe98a","#ffc928","#e8a400","#8a5200"],holo:1}};
+/* ---------- Fond de la fenêtre du dessin (pixel art 81 × 56, trame de Bayer 4 × 4) ----------
+   Validé par Seb le 28/11/2026 : même fond pour toutes les raretés (rayons + lumière au centre), rayons de plus en plus
+   marqués avec la rareté ; trame « entre deux » (une teinte intermédiaire entre deux couleurs) ; fond fixe.
+   Animation (grande carte seulement, jamais dans le classeur) : épique = une petite étincelle à la fois ;
+   légendaire = 10 étoiles qui scintillent. Commun et rare : fixes. */
+const ARTBG=(()=>{const W=81,H=56,B4=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]],N=40;
+  const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),mid=(a,b)=>a.map((v,j)=>Math.round((v+b[j])/2));
+  const fine=L=>{const o=[];L.forEach((c,k)=>{o.push(c);if(k<L.length-1)o.push(mid(c,L[k+1]));});return o;};
+  const dith=(L,t,i,y)=>{const s=Math.max(0,Math.min(.9999,t))*(L.length-1),k=Math.floor(s),fr=s-k;return fr*16>B4[y%4][i%4]+.5?L[Math.min(k+1,L.length-1)]:L[k];};
+  const rad=(i,y)=>Math.min(1,Math.hypot((i-W/2)/(W/2),(y-H*.55)/(H/2))/1.1),ang=(i,y)=>Math.atan2(y-H*.55,i-W/2);
+  const CFG={c:{ray:.06,white:0,n:12,center:.25},r:{ray:.14,white:0,n:16,center:.12},e:{ray:.24,white:0,n:18,center:.04},l:{ray:.3,white:1,n:20,center:0}};
+  const STARS=[[8,7],[72,9],[13,46],[68,44],[40,4],[76,28],[4,27],[56,51],[24,13],[60,20]],EP=[[12,9],[70,14],[20,44],[64,40],[44,6],[6,30],[74,32],[34,50]];
+  const base={},frames={},still={};
+  function ladder(k){if(base[k])return base[k];const G=RAR[k].g.map(hx),C=CFG[k],L=fine((C.white?[[255,255,255]]:[]).concat(G.slice(0,4)));
+    const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d"),im=x.createImageData(W,H);
+    for(let y=0;y<H;y++)for(let i=0;i<W;i++){const r=Math.floor((ang(i,y)+Math.PI*3)/(Math.PI*2)*C.n)%2,col=dith(L,C.center+rad(i,y)*(1-C.center)*.85+(r?C.ray:0),i,y),o=(y*W+i)*4;
+      im.data[o]=col[0];im.data[o+1]=col[1];im.data[o+2]=col[2];im.data[o+3]=255;}
+    x.putImageData(im,0,0);return base[k]=c;}
+  function sparkle(x,a,b,s,col,core){x.fillStyle=core;x.fillRect(a,b,1,1);x.fillStyle=col;for(let d=1;d<=s;d++){x.fillRect(a+d,b,1,1);x.fillRect(a-d,b,1,1);x.fillRect(a,b+d,1,1);x.fillRect(a,b-d,1,1);}
+    if(s>=3){x.fillRect(a+1,b+1,1,1);x.fillRect(a-1,b-1,1,1);x.fillRect(a+1,b-1,1,1);x.fillRect(a-1,b+1,1,1);}}
+  function render(k,t){const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.drawImage(ladder(k),0,0);
+    if(k==="l")STARS.forEach(([a,b],j)=>{const s=Math.round(1.5+1.5*Math.sin(t*2*2*Math.PI+j*1.7));if(s>0)sparkle(x,a,b,s,"#fff6c0","#ffffff");});
+    if(k==="e"){const n=EP.length,u=t*n*.75,j=Math.floor(u)%n,ph=u%1,s=Math.round(2*Math.sin(ph*Math.PI));if(s>0)sparkle(x,EP[j][0],EP[j][1],s,RAR.e.g[1],"#ffffff");}
+    return `url(${c.toDataURL()})`;}
+  /* image fixe : celle validée sur les aperçus (étoiles visibles, une étincelle pour l'épique) */
+  const get=k=>still[k]||(still[k]=render(k,k==="e"?.07:0));
+  const frame=(k,i)=>{const F=frames[k]||(frames[k]=[]);return F[i]||(F[i]=render(k,i/N));};
+  /* cartes animées : seulement les grandes cartes (sachet ouvert, fiche agrandie) */
+  const live=new Set();let tick=0,timer=null;
+  function loop(){tick=(tick+1)%N;if(document.hidden)return;live.forEach(el=>{if(!el.isConnected){live.delete(el);return;}el.style.setProperty("--bg",frame(el.dataset.anim,tick));});
+    if(!live.size){clearInterval(timer);timer=null;}}
+  function animate(el,k){if(RM||(k!=="e"&&k!=="l")){delete el.dataset.anim;live.delete(el);return;}el.dataset.anim=k;live.add(el);if(!timer)timer=setInterval(loop,90);}
+  function stop(el){delete el.dataset.anim;live.delete(el);}
+  return {get,animate,stop};})();
 /* pochette du sachet : dégradé métallisé aux couleurs de sa rareté */
 function paintFoil(el,k){const R=RAR[k],v=[R.dk,R.t,R.hi,R.a[0],R.dk];v.forEach((x,i)=>el.style.setProperty("--f"+i,x));}
 function paintVars(el,c){const R=RAR[c.tier];el.style.setProperty("--t",R.t);el.style.setProperty("--t-hi",R.hi);el.style.setProperty("--t-dk",R.dk);
-  el.style.setProperty("--a1",R.a[0]);el.style.setProperty("--a2",R.a[1]);el.style.setProperty("--a3",R.a[2]);}
+  el.style.setProperty("--a1",R.a[0]);el.style.setProperty("--a2",R.a[1]);el.style.setProperty("--a3",R.a[2]);el.style.setProperty("--bg",ARTBG.get(c.tier));ARTBG.stop(el);}
 
 /* ---------- Données : questions (base fournie, 25 questions ; sources à renseigner) ---------- */
 const QBANK=[];
@@ -919,7 +1005,7 @@ function frontHTML(c,mini,fs){const R=RAR[c.tier];const st=[["heart","Caractère
   if(fs===undefined)fs=statsFs(c);
   return `<div class="frame"><i class="gem tl"></i><i class="gem tr"></i><i class="gem bl"></i><i class="gem br"></i><div class="inner">
   <div class="plate"><h2${c.name.length>20?' class="long"':""}>${c.name}</h2><canvas class="rgem" width="13" height="13" aria-hidden="true"></canvas></div>
-  <div class="art"><div class="burst"></div><div class="holo"></div><canvas class="spr" ${mini?'width="240" height="192" data-k="2" data-z="0.48"':'width="500" height="400" data-k="2"'} aria-label="${c.name} en pixel art, de profil"></canvas><div class="sheen"></div></div>
+  <div class="art"><div class="burst"></div><div class="holo"></div><canvas class="spr" ${mini?'width="240" height="192" data-k="2" data-z="0.48"':'width="500" height="400" data-k="2"'} aria-label="${c.name} en pixel art, de profil"></canvas><div class="sheen"></div><i class="wf"></i></div>
   <div class="typeline"><span>${SPN[c.sp]}</span><b>${R.k.toUpperCase()} ${"★".repeat(R.i+1)}</b></div>
   <ul class="stats"${fs<10.5?` style="font-size:${fs}px"`:""}>${st.map(([i,k,v])=>`<li>${svgPix(ICONS[i],ICOL[i])}<b>${k}</b><span>${v}</span></li>`).join("")}</ul>
   <div class="foot"><span>VetQuiz · Série 1</span><span>N° ${pad(c.no)}/${pad(DOGS.length)}</span></div></div></div>`;}
@@ -1012,7 +1098,14 @@ function renderHome(){counts();const sc=score(),pk=packFor(sc);
   $("ladder").innerHTML=PACKS.map(p=>`<div class="${S.done&&p===pk?"on":""}" style="--c:${RAR[p.k].t}"><b>${RAR[p.k].k}</b>dès ${p.min} pt${p.min>1?"s":""}</div>`).join("");
   const th=$("thumbs");th.innerHTML="";S.owned.slice(-4).reverse().forEach(id=>th.appendChild(makeMini(byId[id],false)));
   for(let i=S.owned.length;i<4;i++){const c=DOGS.find(d=>!S.owned.includes(d.id)&&![...th.children].some(x=>x.dataset.id===d.id));if(!c)break;const m=makeMini(c,false);m.dataset.id=c.id;th.appendChild(m);}fitMinis(th);}
-$("play").onclick=()=>{ac();startGame();};
+/* « Comment jouer » au premier clic sur Jouer (mémorisé dans ce navigateur : vq-howto), puis la partie démarre */
+const howtoSeen=()=>{try{return localStorage.getItem("vq-howto")==="1";}catch(e){return false;}};
+let howtoNext=null;
+function showHowto(next){howtoNext=next||null;const d=$("howto");if(!d.open)d.showModal();d.scrollTop=0;$("howtoOk").focus();}
+$("howtoOk").onclick=()=>$("howto").close();
+$("howto").addEventListener("close",()=>{try{localStorage.setItem("vq-howto","1");}catch(e){}const n=howtoNext;howtoNext=null;if(n)n();});
+$("howtoAgain").onclick=()=>showHowto();
+$("play").onclick=()=>{ac();if(!howtoSeen())showHowto(()=>startGame());else startGame();};
 $("doneAnswers").onclick=()=>go("results");
 $("doneMain").onclick=()=>{if(S.opened){go("binder");}else openPackView();};
 $("toBinder").onclick=()=>go("binder");
@@ -1158,8 +1251,8 @@ function openPackView(){syncDay();{const sc=score(),it=$("packIntro");it.textCon
   if(!S.packId){const c=draw();if(!c){$("packNote").textContent="Votre classeur est complet.";go("binder");return;}S.packId=c.id;save();}
   CARD=byId[S.packId];resetStage();const pk=packFor(score());$("packTag").textContent=pk.name;$("packTag").style.background="var(--ink)";$("packTag").style.color=RAR[pk.k].hi;paintFoil(pack,pk.k);$("packNote").textContent=`Ce sachet : ${packFor(score()).odds.map((o,i)=>RAR[RKEYS[i]].k.toLowerCase()+" "+o+" %").join(", ")}.`;go("pack");pack.focus({preventScroll:true});}
 function resetStage(){state="pack";progress=0;lastTick=0;ambient=false;parts=[];
-  $("controls").hidden=true;$("rays").classList.remove("on");$("banner").classList.remove("go");
-  flip.className="flip";card.className="card";card.style.removeProperty("--glow");card.style.setProperty("--holo","0");card.tabIndex=-1;
+  $("controls").hidden=true;$("rays").classList.remove("on");$("dim").classList.remove("on");$("banner").classList.remove("go");
+  flip.className="flip";card.className="card inpack";card.style.removeProperty("--glow");card.style.setProperty("--holo","0");card.tabIndex=-1;
   paintVars(card,CARD);$("front").innerHTML=frontHTML(CARD);hydrate($("front"),CARD);
   $("back").className="face back mystery";$("back").style.removeProperty("--glowtxt");$("back").innerHTML=MYSTERY;
   pack.className="pack idle";packTop.className="foil pack-top";packTop.style.transform="";$("tearfill").style.width="0";$("side").textContent="Lire la fiche véto";
@@ -1201,28 +1294,46 @@ async function finishTear(){if(state!=="pack")return;state="opening";hint.classL
   const r=pack.getBoundingClientRect(),s=stage.getBoundingClientRect();emit(26,r.left-s.left+r.width/2,r.top-s.top+r.height*.12,{cols:["#e9f0ff","#a9bcef","#fff","#ffe58a"],v:4,up:3,g:.2,s:4,life:55,a0:Math.PI,spread:Math.PI});
   await wait(300);pack.classList.add("shake1");SFX.thump(.6);buzz(20);
   await wait(400);pack.classList.remove("shake1");void pack.offsetWidth;pack.classList.add("shake2");SFX.thump(1);buzz([20,40,20]);
-  await wait(520);SFX.whoosh();card.classList.add("rise");pack.classList.add("drop");
+  await wait(520);SFX.whoosh();card.classList.remove("inpack");card.classList.add("rise");pack.classList.add("drop");
   await wait(440);card.classList.remove("rise");card.classList.add("settle");SFX.thump(.5);
   await wait(300);charge();}
 async function charge(){state="charging";hint.textContent="La rareté monte…";const T=RAR[CARD.tier].i;const gaps=[300,520,640,780];
   for(let i=0;i<=T;i++){await wait(gaps[i]);const R=RAR[RKEYS[i]];card.style.setProperty("--glow",R.t);$("back").style.setProperty("--glowtxt",R.hi);
     card.classList.remove("bump");void card.offsetWidth;card.classList.add("bump");SFX.ding(i);buzz(10+i*12);
     const [cx,cy]=center();emit(10+i*8,cx,cy,{cols:[R.t,R.hi,"#fff"],v:2.5+i,g:.04,s:4,life:45});
+    if(i>=1){stage.style.setProperty("--b-hi",R.hi);ringGo("ring");}
     if(i===T&&i>=2){stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");}}
   await wait(300);state="ready";card.classList.add("ready");card.tabIndex=0;card.setAttribute("aria-label","Carte face cachée : touchez pour la révéler");card.focus({preventScroll:true});
   hint.textContent="Touchez la carte pour la révéler";hint.classList.add("blink");}
+/* révélation selon la rareté (28/11/2026) : commun = éclair et confettis ; rare = + double anneau et pluie d'étincelles ;
+   épique = + rayons, secousse, pluie plus longue ; légendaire = + la scène s'assombrit, la carte tremble, puis grand éclair et pluie d'étoiles dorées */
+function ringGo(id,delay=0){const g=$(id);setTimeout(()=>{g.classList.remove("go");void g.offsetWidth;g.classList.add("go");},delay);}
+function rain(T,R){if(RM||!T)return;const end=performance.now()+[0,1300,2000,3400][T],k=[0,2,3,5][T],cols=T===3?[R.hi,"#fff","#fff3c4",R.t]:[R.hi,"#fff",R.t];
+  const id=setInterval(()=>{if(performance.now()>end||view!=="pack"){clearInterval(id);return;}
+    for(let i=0;i<k;i++)emit(1,Math.random()*fx.width,-6,{cols,v:1.4,a0:Math.PI/2-.25,spread:.5,g:.035,s:T===3?5:4,life:150,tw:1});},70);}
 async function reveal(){state="revealing";const R=RAR[CARD.tier],T=R.i;hint.classList.remove("blink");hint.textContent="";card.classList.remove("ready");
+  if(T===3&&!RM){stage.style.setProperty("--ray",R.hi+"3d");$("dim").classList.add("on");$("rays").classList.add("on");card.classList.add("tremble");SFX.thump(.5);buzz([15,40,15,40,15]);
+    await wait(950);card.classList.remove("tremble");
+    /* suspense : recto sans dessin ni nom, puis les infos une à une, puis le nom lettre par lettre */
+    const fr=$("front"),h2=fr.querySelector(".plate h2"),nm=h2.textContent,lis=[...fr.querySelectorAll(".stats li")];
+    card.classList.add("sus");h2.textContent="? ? ?";SFX.whoosh();flip.classList.add("revealed");hint.textContent="Qui est-ce ?";await wait(900);
+    for(let i=0;i<lis.length;i++){lis[i].classList.add("in");SFX.ding(Math.min(i,3));buzz(10);
+      const r=lis[i].getBoundingClientRect(),sr=stage.getBoundingClientRect();emit(10,r.left-sr.left+18,r.top-sr.top+r.height/2,{cols:[R.hi,"#fff"],v:2,g:.02,s:3,life:30});
+      await wait(1250);}
+    hint.textContent="";SFX.thump(.6);h2.textContent="";await wait(350);
+    for(let k=1;k<=nm.length;k++){h2.textContent=nm.slice(0,k);if(nm[k-1]!==" ")SFX.tick();await wait(85);}
+    await wait(550);card.classList.remove("sus");lis.forEach(li=>li.classList.remove("in"));}
   SFX.impact();buzz([60,30,90]);$("flash").classList.remove("go");void $("flash").offsetWidth;$("flash").classList.add("go");
   flip.classList.add("revealed");if(T>=1){stage.classList.remove("shake");void stage.offsetWidth;stage.classList.add("shake");}
   stage.style.setProperty("--b",R.t);stage.style.setProperty("--b-hi",R.hi);stage.style.setProperty("--ray",R.hi+"3d");
-  await wait(220);const [cx,cy]=center();if(T>=2)$("rays").classList.add("on");$("ring").classList.remove("go");void $("ring").offsetWidth;$("ring").classList.add("go");
+  await wait(220);const [cx,cy]=center();if(T>=2)$("rays").classList.add("on");ringGo("ring");if(T>=1)ringGo("ring2",170);rain(T,R);if(T===3)setTimeout(()=>$("dim").classList.remove("on"),2600);
   emit([50,80,110,150][T],cx,cy,{cols:[R.t,R.hi,"#fff","#fff3c4","#d94f9e","#3b7dd8"],v:5+T*1.4,up:2,g:.18,s:5,life:90});
   await wait(200);SFX.fanfare(T);const b=$("banner");$("bannerTxt").textContent=R.k.toUpperCase()+(T>=1?" !":"");$("bannerStars").innerHTML="<i>★</i>".repeat(T+1);
   b.classList.remove("go");void b.offsetWidth;b.classList.add("go");
   await wait(380);const st=b.querySelectorAll("i");for(let i=0;i<st.length;i++){st[i].classList.add("on");SFX.star(i);buzz(8);await wait(150);}
   card.style.setProperty("--holo",R.holo);ambient=!RM&&T>=1;if(ambient&&!fxOn){fxOn=true;requestAnimationFrame(loop);}
   $("back").className="face back vet";$("back").innerHTML=backHTML(CARD);hydrate($("back"),CARD);
-  card.style.setProperty("--glow",R.t+"8c");state="revealed";card.setAttribute("aria-label",`${CARD.name}, ${R.k} : touchez pour retourner`);
+  card.style.setProperty("--glow",R.t+"8c");state="revealed";ARTBG.animate(card,CARD.tier);card.setAttribute("aria-label",`${CARD.name}, ${R.k} : touchez pour retourner`);
   if(!S.owned.includes(CARD.id)){S.owned.push(CARD.id);}S.opened=true;save();counts();$("packIntro").hidden=true;syncDay();
   hint.textContent=`Nouvelle race : ${S.owned.length}/${DOGS.length} dans votre classeur`;$("controls").hidden=false;}
 function turn(){if(state!=="revealed")return;flip.classList.toggle("show-back");const b=flip.classList.contains("show-back");SFX.whoosh();$("side").textContent=b?"Voir le dessin":"Lire la fiche véto";}
@@ -1243,11 +1354,11 @@ function renderBinder(){counts();$("bNote").textContent=`Série 1 : ${DOGS.lengt
   const g=$("grid");g.innerHTML="";DOGS.filter(c=>(filter==="all"||c.tier===filter)&&(spf==="all"||c.sp===spf)).forEach(c=>g.appendChild(makeMini(c,S.opened&&c.id===S.packId)));fitMinis(g);}
 if(miniRO){miniRO.observe($("grid"));miniRO.observe($("thumbs"));}
 const dlg=$("dlg");let dCard=null;
-function openCard(c){dCard=c;const el=$("dCard");paintVars(el,c);el.style.setProperty("--holo",RAR[c.tier].holo);$("dFlip").classList.remove("show-back");$("dTurn").textContent="Lire la fiche véto";
+function openCard(c){dCard=c;const el=$("dCard");paintVars(el,c);ARTBG.animate(el,c.tier);el.style.setProperty("--holo",RAR[c.tier].holo);$("dFlip").classList.remove("show-back");$("dTurn").textContent="Lire la fiche véto";
   $("dFront").innerHTML=frontHTML(c);$("dBack").innerHTML=backHTML(c);hydrate(el,c);if(!dlg.open)dlg.showModal();el.focus();}
 const dTurn=()=>{$("dFlip").classList.toggle("show-back");$("dTurn").textContent=$("dFlip").classList.contains("show-back")?"Voir le dessin":"Lire la fiche véto";};
 $("dCard").onclick=dTurn;$("dTurn").onclick=dTurn;$("dCard").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();dTurn();}};
-$("dClose").onclick=()=>dlg.close();dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});
+$("dClose").onclick=()=>dlg.close();dlg.addEventListener("close",()=>ARTBG.stop($("dCard")));dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});
 $("dCard").addEventListener("pointermove",e=>{const r=e.currentTarget.getBoundingClientRect();setTilt(e.currentTarget.querySelector(".tilt"),(e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5);});
 
 /* ---------- Règles ---------- */
@@ -1277,7 +1388,7 @@ $("eraseData").onclick=async()=>{const b=$("eraseData");
   if(!eraseArm){eraseArm=true;b.textContent="Confirmer : tout effacer";setTimeout(()=>{if(eraseArm){eraseArm=false;b.textContent="Effacer mes données";}},5000);return;}
   eraseArm=false;b.disabled=true;$("eraseMsg").textContent="Effacement…";
   try{if(eraseServer)await eraseServer();}catch(e){b.disabled=false;b.textContent="Effacer mes données";$("eraseMsg").textContent="Effacement impossible : "+(e&&e.message?e.message:e)+". Réessayez ou écrivez à contact@vetquiz.net.";return;}
-  try{["vq-auth","vq-site-2","vq-missed","vq-sound"].forEach(k=>localStorage.removeItem(k));}catch(e){}
+  try{["vq-auth","vq-site-2","vq-missed","vq-sound","vq-howto"].forEach(k=>localStorage.removeItem(k));}catch(e){}
   location.replace(location.pathname);};
 
 
@@ -1291,6 +1402,8 @@ $("eraseData").onclick=async()=>{const b=$("eraseData");
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "vq-auth" },
   });
   window.VQ = { sb };
+  // site en ligne : « Comment jouer » affiche aussi la part des joueurs et les réponses dévoilées le lendemain
+  document.body.classList.add("live");
 
   /* ---------- Outils ---------- */
   let banner = null;

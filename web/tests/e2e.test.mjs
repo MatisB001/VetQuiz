@@ -93,6 +93,12 @@ ok(!calls.some((c) => c.includes("/signup")), "visite sans jouer : aucune sessio
 ok(await page.locator("#play").isVisible(), "accueil : bouton Jouer"); await shot("1-accueil");
 
 await page.click("#play");
+// premier clic : fenêtre « Comment jouer », avec les lignes propres au site en ligne ; la partie démarre après « J'ai compris »
+ok(await page.locator("#howto").isVisible(), "premier Jouer : fenêtre « Comment jouer » ouverte");
+ok(await page.locator("#howto li.only-live").first().isVisible(), "« Comment jouer » : lignes du site en ligne visibles (part des joueurs, lendemain)");
+ok(!calls.some((c) => c.includes("/signup")), "« Comment jouer » : pas de session avant « J'ai compris »");
+await shot("1b-comment-jouer");
+await page.click("#howtoOk");
 await page.waitForFunction(() => /alphabet radio/.test(document.getElementById("qText").textContent));
 ok(calls.filter((c) => c.includes("/signup")).length === 1, "Jouer : une session invitée créée");
 ok(await page.locator("#qNum").textContent() === "Question 1/7", "question 1/7 affichée");
@@ -190,7 +196,7 @@ const uidBefore = await page.evaluate(async () => (await VQ.session(false))?.use
 await page.click('[data-v="rules"]');
 await page.click("#eraseData");
 await Promise.all([page.waitForEvent("load", { timeout: 15000 }), page.click("#eraseData")]);
-await page.waitForFunction(() => !localStorage.getItem("vq-auth") && !localStorage.getItem("vq-site-2"), null, { timeout: 10000 });
+await page.waitForFunction(() => !localStorage.getItem("vq-auth") && !localStorage.getItem("vq-site-2") && !localStorage.getItem("vq-howto"), null, { timeout: 10000 });
 ok(psql(`select count(*) from auth.users where id = '${uidBefore}'`).trim() === "0" && psql(`select count(*) from public.quiz_runs where user_id = '${uidBefore}'`).trim() === "0", "effacer mes données : session, parties et cartes supprimées du serveur, navigateur vidé");
 
 // Nouveaux dessins (27/11/2026) : la carte charge le grand dessin à part, le classeur la vignette ; le dessin remplit la carte.

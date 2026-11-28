@@ -8,6 +8,8 @@
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: "vq-auth" },
   });
   window.VQ = { sb };
+  // site en ligne : « Comment jouer » affiche aussi la part des joueurs et les réponses dévoilées le lendemain
+  document.body.classList.add("live");
 
   /* ---------- Outils ---------- */
   let banner = null;

@@ -32,7 +32,8 @@ const FIX = {
      "| `vq-auth` (stockage local, session Supabase) | Retrouver votre partie, avec ou sans compte | Jusqu'à déconnexion, effacement par vous ou suppression de la session |\n" +
      "| `vq-site-2` (stockage local) | Afficher sans attendre la partie du jour, vos cartes et votre série | Jusqu'à effacement par vous |\n" +
      "| `vq-missed` (stockage local) | Lister vos réponses refusées sur cet appareil (500 au plus), dans « Règles » ; cette liste n'est jamais envoyée | Jusqu'à « Vider la liste » ou effacement par vous |\n" +
-     "| `vq-sound` (stockage local) | Mémoriser si le son est activé | Jusqu'à effacement par vous |"],
+     "| `vq-sound` (stockage local) | Mémoriser si le son est activé | Jusqu'à effacement par vous |\n" +
+     "| `vq-howto` (stockage local) | Ne montrer qu'une fois la fenêtre « Comment jouer » | Jusqu'à effacement par vous |"],
   ],
   cgu: [
     // aucun outil de modération automatique dans le code (table reports, traitée à la main)
